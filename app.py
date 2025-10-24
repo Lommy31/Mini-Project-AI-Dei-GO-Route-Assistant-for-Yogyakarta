@@ -1,21 +1,30 @@
-# import streamlit as st
-# import requests
+import threading
+import uvicorn
+from fastapi import FastAPI
+import streamlit as st
+import requests
 
-# st.title("🗺️ Route Assistant Chatbot - Yogyakarta")
+# === FastAPI bagian backend ===
+app = FastAPI()
 
-# # Input field for user query
-# user_input = st.text_input("Ketik tujuanmu (contoh: Saya mau ke UGM dari Malioboro):")
+@app.post("/chatbot")
+def chatbot(data: dict):
+    user_input = data.get("user_input", "")
+    # contoh respons sederhana (tanpa OpenAI)
+    return {"response": f"Rute ke {user_input} sedang diproses oleh sistem AI sederhana 🚗"}
 
-# # Function to send user input to the FastAPI backend
-# def chatbot_response(user_input):
-#     url = "http://127.0.0.1:8000/chatbot"  # FastAPI backend URL
-#     response = requests.post(url, json={"user_input": user_input})
-#     if response.status_code == 200:
-#         return response.json().get("response", "Error: No response from backend.")
-#     else:
-#         return f"Error: {response.status_code} - {response.text}"
+def run_fastapi():
+    uvicorn.run(app, host="0.0.0.0", port=8000)
 
-# # Display the chatbot response
-# if user_input:
-#     response = chatbot_response(user_input)
-#     st.write(response)
+# === Jalankan FastAPI di thread terpisah ===
+thread = threading.Thread(target=run_fastapi, daemon=True)
+thread.start()
+
+# === Streamlit bagian frontend ===
+st.title("🗺️ Route Assistant Chatbot - Yogyakarta")
+
+user_input = st.text_input("Ketik tujuanmu (contoh: Saya mau ke UGM dari Malioboro):")
+
+if user_input:
+    response = requests.post("http://localhost:8000/chatbot", json={"user_input": user_input})
+    st.write(response.json().get("response"))
