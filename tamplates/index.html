@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Route Assistant Yogyakarta</title>
+</head>
+<body>
+  <h1>🗺️ Route Assistant - Yogyakarta</h1>
+  <input id="start" placeholder="Mulai dari...">
+  <input id="end" placeholder="Menuju ke...">
+  <button onclick="findRoute()">Cari Rute</button>
+
+  <pre id="result"></pre>
+
+  <script>
+    async function findRoute() {
+      const start = document.getElementById('start').value;
+      const end = document.getElementById('end').value;
+      const res = await fetch('/api/route', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({start, end})
+      });
+      const data = await res.json();
+      document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+    }
+  </script>
+</body>
+</html>
