@@ -26,5 +26,5 @@ st.title("🗺️ Route Assistant Chatbot - Yogyakarta")
 user_input = st.text_input("Ketik tujuanmu (contoh: Saya mau ke UGM dari Malioboro):")
 
 if user_input:
-    response = requests.post("http://localhost:8000/chatbot", json={"user_input": user_input})
+    response = requests.post("https://mini-project-ai-dei-go-route-assistant-for-yogya-production.up.railway.app/api/chatbot", ...)
     st.write(response.json().get("response"))
