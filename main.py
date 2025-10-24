@@ -1,9 +1,11 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, request, jsonify, render_template
+from flask_cors import CORS
 import networkx as nx
 
 app = Flask(__name__)
+CORS(app)
 
-# === ROUTE LOGIC ===
+# === Graph setup ===
 edges = [
     ("Tugu Jogja", "Stasiun Tugu", 1),
     ("Tugu Jogja", "UGM", 4),
@@ -18,6 +20,7 @@ G = nx.Graph()
 for src, dest, dist in edges:
     G.add_edge(src, dest, weight=dist)
 
+# === Routes ===
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -33,6 +36,14 @@ def route():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
+# === Chatbot (contoh sederhana) ===
+@app.route("/api/chatbot", methods=["POST"])
+def chatbot():
+    data = request.get_json()
+    user_input = data.get("user_input", "")
+    return jsonify({"response": f"Rute ke {user_input} sedang diproses 🚗"})
+
+# === Run ===
 if __name__ == "__main__":
     import os
     port = int(os.environ.get("PORT", 5000))
