@@ -1,2 +1,5 @@
-[build.environment]
-PYTHON_VERSION = "3.12.3"
+flask
+gunicorn
+requests
+openai
+python-dotenv
