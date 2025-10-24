@@ -1,5 +1,2 @@
-flask
-gunicorn
-requests
-openai
-python-dotenv
+[build.environment]
+PYTHON_VERSION = "3.12.3"
