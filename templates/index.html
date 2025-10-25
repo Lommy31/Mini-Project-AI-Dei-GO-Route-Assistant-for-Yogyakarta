@@ -1,87 +1,140 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dei-GO: Smart Route & Chatbot Guide</title>
-  <link rel="stylesheet" href="style.css" />
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
-  />
-  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-</head>
-<body>
-  <!-- ========================= -->
-  <!-- HEADER SECTION -->
-  <!-- ========================= -->
-  <header>
-    <h1>🗺️ Dei-GO: Smart Route Finder & Chat Assistant</h1>
-    <p>Your intelligent travel companion in Yogyakarta.</p>
-  </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dei-GO: Smart Route & Chatbot Guide</title>
 
-  <!-- ========================= -->
-  <!-- MAIN CONTENT -->
-  <!-- ========================= -->
-  <main>
-    <!-- ROUTE FINDER SECTION -->
-    <section id="route-section" class="card-section">
-      <h2>🚗 Find the Best Route</h2>
-      <div class="route-controls">
-        <label for="origin">Origin:</label>
-        <select id="origin">
-          <option value="">Select origin...</option>
-        </select>
+    <!-- CSS -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
 
-        <label for="destination">Destination:</label>
-        <select id="destination">
-          <option value="">Select destination...</option>
-        </select>
+    <!-- Leaflet for Maps -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  </head>
 
-        <button id="find-route-btn">Find Route</button>
-      </div>
+  <body class="light-mode">
+    <!-- ========================= -->
+    <!-- HEADER -->
+    <!-- ========================= -->
+    <header>
+      <h1>🗺️ Dei-GO: Smart Route Finder & Chat Assistant</h1>
+      <p>Your intelligent travel companion in Yogyakarta.</p>
+      <button id="mode-toggle">🌙 Dark Mode</button>
+    </header>
 
-      <div id="route-output" class="output-box">
-        <p>Select your route to see details here.</p>
-      </div>
+    <!-- ========================= -->
+    <!-- MAIN CONTENT -->
+    <!-- ========================= -->
+    <main>
+      <!-- DESTINATION CARDS -->
+      <section id="destination-section" class="card-section">
+        <h2>🏙️ Popular Destinations</h2>
+        <div id="destination-cards" class="cards-container">
+          <div class="card">
+            <img
+              src="{{ url_for('static', filename='images/tugu.jpg') }}"
+              alt="Tugu Jogja"
+            />
+            <h3>Tugu Jogja</h3>
+            <p>Iconic landmark of Yogyakarta city center.</p>
+          </div>
 
-      <div id="map"></div>
-    </section>
+          <div class="card">
+            <img
+              src="{{ url_for('static', filename='images/malioboro.jpg') }}"
+              alt="Malioboro Street"
+            />
+            <h3>Malioboro Street</h3>
+            <p>The most vibrant shopping street in Yogyakarta.</p>
+          </div>
 
-    <!-- DESTINATION CARDS SECTION -->
-    <section id="destination-section" class="card-section">
-      <h2>🏙️ Popular Destinations</h2>
-      <div id="destination-cards" class="cards-container"></div>
-    </section>
+          <div class="card">
+            <img
+              src="{{ url_for('static', filename='images/keraton.jpg') }}"
+              alt="Keraton"
+            />
+            <h3>Keraton Yogyakarta</h3>
+            <p>The royal palace and cultural heart of the city.</p>
+          </div>
+        </div>
+      </section>
 
-    <!-- CHATBOT SECTION -->
-    <section id="chat-section" class="card-section">
-      <h2>💬 Chat with Dei-GO</h2>
-      <div id="chatbox" class="chatbox"></div>
-      <div class="chat-input">
-        <input
-          type="text"
-          id="user-input"
-          placeholder="Ask Dei-GO something..."
-        />
-        <button id="send-btn">Send</button>
-      </div>
-    </section>
+      <!-- ROUTE FINDER -->
+      <section id="route-section" class="card-section">
+        <h2>🚗 Find the Best Route</h2>
+        <div class="route-controls">
+          <label for="origin">Origin:</label>
+          <select id="origin">
+            <option value="">Select origin...</option>
+            <option value="Tugu Jogja">Tugu Jogja</option>
+            <option value="Stasiun Tugu">Stasiun Tugu</option>
+            <option value="Malioboro">Malioboro</option>
+            <option value="Keraton">Keraton</option>
+            <option value="Alun-Alun Kidul">Alun-Alun Kidul</option>
+            <option value="UGM">UGM</option>
+            <option value="Monjali">Monjali</option>
+            <option value="Bandara">Bandara</option>
+          </select>
 
-    <!-- GRAPH SECTION -->
-    <section id="graph-section" class="card-section">
-      <h2>📊 Graph Visualization</h2>
-      <canvas id="graphCanvas" width="600" height="400"></canvas>
-    </section>
-  </main>
+          <label for="destination">Destination:</label>
+          <select id="destination">
+            <option value="">Select destination...</option>
+            <option value="Tugu Jogja">Tugu Jogja</option>
+            <option value="Stasiun Tugu">Stasiun Tugu</option>
+            <option value="Malioboro">Malioboro</option>
+            <option value="Keraton">Keraton</option>
+            <option value="Alun-Alun Kidul">Alun-Alun Kidul</option>
+            <option value="UGM">UGM</option>
+            <option value="Monjali">Monjali</option>
+            <option value="Bandara">Bandara</option>
+          </select>
 
-  <!-- ========================= -->
-  <!-- FOOTER -->
-  <!-- ========================= -->
-  <footer>
-    <p>© 2025 Dei-GO | Created for smart travel and local exploration</p>
-  </footer>
+          <button id="find-route-btn">Find Route</button>
+        </div>
 
-  <script src="script.js"></script>
-</body>
+        <div id="route-output" class="output-box">
+          <p>Select your route to see details here.</p>
+        </div>
+
+        <div id="map"></div>
+      </section>
+
+      <!-- CHATBOT -->
+      <section id="chat-section" class="card-section">
+        <h2>💬 Chat with Dei-GO</h2>
+        <div id="chatbox" class="chatbox"></div>
+        <div class="chat-input">
+          <input
+            type="text"
+            id="user-input"
+            placeholder="Ask Dei-GO something..."
+          />
+          <button id="send-btn">Send</button>
+        </div>
+      </section>
+
+      <!-- GRAPH SECTION -->
+      <section id="graph-section" class="card-section">
+        <h2>📊 Graph Visualization</h2>
+        <canvas id="graphCanvas" width="600" height="400"></canvas>
+      </section>
+    </main>
+
+    <!-- ========================= -->
+    <!-- FOOTER -->
+    <!-- ========================= -->
+    <footer>
+      <p>© 2025 Dei-GO | Created for smart travel and local exploration</p>
+    </footer>
+
+    <!-- SCRIPTS -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+  </body>
 </html>
