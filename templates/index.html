@@ -201,6 +201,16 @@
     #send-btn:hover {
       background: #4338ca;
     }
+
+    /* 💬 animasi pop */
+    .chatbot-pop {
+      position: fixed;
+      font-size: 24px;
+      opacity: 1;
+      transition: all 0.6s ease;
+      pointer-events: none;
+      z-index: 2000;
+    }
   </style>
 </head>
 
@@ -277,6 +287,7 @@
     </div>
   </div>
 
+  <!-- === Scripts === -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="{{ url_for('static', filename='chatbot.js') }}"></script>
 
@@ -339,13 +350,6 @@
 
       map.fitBounds(coords);
     }
-
-    // === CHATBOT TOGGLE ===
-    const chatButton = document.getElementById("chatbot-button");
-    const chatContainer = document.getElementById("chatbot-container");
-    chatButton.addEventListener("click", () => {
-      chatContainer.style.display = chatContainer.style.display === "flex" ? "none" : "flex";
-    });
   </script>
 </body>
 </html>
