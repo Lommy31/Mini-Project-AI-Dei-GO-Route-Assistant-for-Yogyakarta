@@ -51,29 +51,44 @@ def get_route():
     return jsonify({"route": path, "distance": distance})
 
 
-# --- Chatbot sederhana ---
-@app.route("/api/chatbot", methods=["POST"])
-def chatbot_reply():
-    data = request.get_json()
-    user_input = data.get("user_input", "").lower()
+# --- Chatbot ---
+@app.route("/chat", methods=["POST"])
+def chat():
+    user_message = request.json["message"].lower().strip()
 
-    if "rute" in user_input or "ke" in user_input:
-        return jsonify({
-            "response": "Silakan gunakan fitur 'Select Your Route' di atas untuk mencari rute terbaik di Yogyakarta 🚗"
-        })
+    # Kasus: user nanya rute
+    if "ke" in user_message and "dari" in user_message:
+        parts = user_message.split("dari")
+        destination = parts[0].replace("aku mau ke", "").strip().title()
+        origin = parts[1].strip().title()
 
-    if "halo" in user_input or "hai" in user_input:
+        # Cari rute dari graph
+        result = shortest_route(origin, destination)
+        if result:
+            path, distance = result
+            route_str = " → ".join(path)
+            return jsonify({
+                "response": f"Rute tercepat dari {origin} ke {destination} adalah {route_str} dengan jarak sekitar {distance} km 🚗."
+            })
+        else:
+            return jsonify({
+                "response": f"Maaf, aku belum punya data rute dari {origin} ke {destination} 😢."
+            })
+
+    # Kasus: sapaan dan info umum
+    if "halo" in user_message or "hai" in user_message:
         response = "Halo juga! 👋 Aku Dei-GO, asisten rute Yogyakarta."
-    elif "tugu" in user_input:
+    elif "tugu" in user_message:
         response = "Tugu Jogja berada di pusat kota, dekat Malioboro. Simbol penting Yogyakarta!"
-    elif "keraton" in user_input:
+    elif "keraton" in user_message:
         response = "Keraton Yogyakarta adalah istana resmi Sultan, pusat budaya dan sejarah 👑."
     else:
-        response = "Maaf, aku belum paham pertanyaan itu 😅. Coba tanya tentang rute di Yogyakarta!"
+        response = "Coba ketik tujuanmu, misalnya: Aku mau ke UGM dari Malioboro 🗺️"
 
     return jsonify({"response": response})
 
 
+# --- Halaman utama ---
 @app.route("/")
 def index():
     return render_template("index.html")
