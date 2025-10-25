@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, jsonify
 import json, os
 from collections import deque
+from chatbot import get_response
 
 app = Flask(__name__)
 
