@@ -1,30 +1,51 @@
+/* =========================================================
+DEI-GO SMART ROUTE ASSISTANT - Modern Minimalist Theme
+========================================================= */
+
+/* ------------------------------
+IMPORT & GLOBAL RESET
+------------------------------ */
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap
 ");
 
-/* ------------------------------
-GLOBAL STYLES
------------------------------- */
-
 {
-box-sizing: border-box;
 margin: 0;
 padding: 0;
+box-sizing: border-box;
 font-family: "Poppins", sans-serif;
+transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 body {
 display: flex;
 flex-direction: column;
 min-height: 100vh;
-background-color: #f4f6ff;
+background-color: #f5f6fa;
 color: #222;
-transition: background 0.4s ease, color 0.4s ease;
 }
 
-/* Dark mode */
+/* ------------------------------
+DARK MODE STYLING
+------------------------------ */
 body.dark-mode {
-background-color: #0f111a;
-color: #e4e6eb;
+background-color: #1b1e2b;
+color: #f0f0f0;
+}
+
+body.dark-mode header {
+background-color: #292f4c;
+}
+
+body.dark-mode .card,
+body.dark-mode #route-output,
+body.dark-mode .chat-container {
+background: #25293b;
+color: #f5f5f5;
+border-color: #3a3f5a;
+}
+
+body.dark-mode footer {
+background: #292f4c;
 }
 
 /* ------------------------------
@@ -32,45 +53,35 @@ HEADER
 ------------------------------ */
 header {
 background-color: #2a2f6d;
-color: #fff;
+color: white;
 text-align: center;
 padding: 1.5rem 1rem;
-box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
-position: relative;
+box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
 }
 
 header h1 {
 font-size: 2rem;
-margin-bottom: 0.3rem;
+font-weight: 600;
 }
 
 header p {
-font-size: 1rem;
 opacity: 0.9;
+margin-bottom: 0.5rem;
 }
 
 #mode-toggle {
-position: absolute;
-top: 15px;
-right: 20px;
-background: #fff;
+background-color: #fff;
 color: #2a2f6d;
 border: none;
-padding: 8px 14px;
 border-radius: 8px;
-font-weight: 600;
+padding: 8px 16px;
 cursor: pointer;
-transition: 0.3s;
+font-weight: 600;
+transition: all 0.3s ease;
 }
 
 #mode-toggle:hover {
-background: #e0e4ff;
-}
-
-/* Dark mode header button */
-body.dark-mode #mode-toggle {
-background: #2a2f6d;
-color: #fff;
+background-color: #e0e3ff;
 }
 
 /* ------------------------------
@@ -79,27 +90,25 @@ DESTINATION CARDS
 .cards-container {
 display: flex;
 justify-content: center;
+align-items: stretch;
 flex-wrap: wrap;
 gap: 25px;
 padding: 40px 20px;
 }
 
 .card {
-background: #fff;
-border-radius: 12px;
+background: white;
+border-radius: 14px;
 overflow: hidden;
 width: 280px;
 text-align: center;
-box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 transition: all 0.3s ease;
-}
-
-body.dark-mode .card {
-background: #1a1c29;
+border: 1px solid #ddd;
 }
 
 .card:hover {
-transform: translateY(-6px);
+transform: translateY(-8px);
 box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
 }
 
@@ -110,48 +119,42 @@ object-fit: cover;
 }
 
 .card h3 {
-margin-top: 12px;
+margin: 12px 0 6px;
 color: #2a2f6d;
-}
-
-body.dark-mode .card h3 {
-color: #9aa8ff;
+font-size: 1.2rem;
 }
 
 .card p {
 color: #555;
-padding: 0 10px 20px;
+padding: 0 12px 20px;
 font-size: 0.95rem;
 }
 
-body.dark-mode .card p {
-color: #ccc;
-}
-
 /* ------------------------------
-ROUTE FINDER
+ROUTE SECTION
 ------------------------------ */
 #route-section {
-padding: 40px 20px;
 text-align: center;
+padding: 30px 20px 40px;
 }
 
 .route-controls {
 display: flex;
 justify-content: center;
 flex-wrap: wrap;
-gap: 15px;
+gap: 12px;
 margin-bottom: 20px;
 }
 
 .route-controls label {
 font-weight: 600;
+color: #333;
 }
 
 .route-controls select {
 padding: 10px 15px;
 border-radius: 8px;
-border: 1px solid #ccc;
+border: 1px solid #bbb;
 font-size: 1rem;
 outline: none;
 }
@@ -160,8 +163,7 @@ outline: none;
 background-color: #2a2f6d;
 color: #fff;
 border: none;
-padding: 10px 20px;
-font-size: 1rem;
+padding: 10px 22px;
 border-radius: 8px;
 cursor: pointer;
 transition: 0.3s;
@@ -171,9 +173,6 @@ transition: 0.3s;
 background-color: #1f245a;
 }
 
-/* ------------------------------
-ROUTE OUTPUT
------------------------------- */
 #route-output {
 background: #fff;
 color: #000;
@@ -182,58 +181,64 @@ margin: 20px auto;
 padding: 20px;
 border-radius: 12px;
 text-align: left;
-font-size: 1rem;
 line-height: 1.6;
-box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-body.dark-mode #route-output {
-background: #1a1c29;
-color: #e4e6eb;
+box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 #route-output img {
-width: 90px;
-height: 90px;
+width: 80px;
+height: 80px;
 border-radius: 10px;
-margin: 10px;
+margin: 10px 8px;
 }
 
-/* ------------------------------
-MAP SECTION
------------------------------- */
+/* MAP */
 #map {
 width: 90%;
 height: 400px;
-margin: 30px auto;
+margin: 30px auto 0;
 border-radius: 12px;
-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-overflow: hidden;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 /* ------------------------------
-CHATBOT SECTION
+CHATBOT
 ------------------------------ */
 #chat-section {
-padding: 40px 20px;
 text-align: center;
+padding: 40px 20px;
 }
 
 .chatbox {
 background: #fff;
 border-radius: 12px;
-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-max-width: 600px;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+max-width: 550px;
 margin: 0 auto 20px;
-height: 300px;
+height: 320px;
 overflow-y: auto;
 padding: 15px;
-color: #333;
 }
 
-body.dark-mode .chatbox {
-background: #1a1c29;
-color: #e4e6eb;
+.user-message,
+.bot-message {
+margin: 8px 0;
+}
+
+.user-message .bubble {
+background: #2a2f6d;
+color: #fff;
+padding: 10px 14px;
+border-radius: 10px;
+text-align: right;
+}
+
+.bot-message .bubble {
+background: #e9ecf8;
+color: #222;
+padding: 10px 14px;
+border-radius: 10px;
+text-align: left;
 }
 
 .chat-input {
@@ -245,7 +250,7 @@ gap: 10px;
 .chat-input input {
 flex: 1;
 max-width: 400px;
-padding: 10px;
+padding: 10px 15px;
 border-radius: 8px;
 border: 1px solid #ccc;
 font-size: 1rem;
@@ -258,7 +263,6 @@ border: none;
 padding: 10px 20px;
 border-radius: 8px;
 cursor: pointer;
-transition: background 0.3s ease;
 }
 
 .chat-input button:hover {
@@ -268,16 +272,16 @@ background-color: #1f245a;
 /* ------------------------------
 GRAPH SECTION
 ------------------------------ */
-#graphCanvas {
-display: block;
-margin: 30px auto;
-background: #fff;
-border-radius: 10px;
-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+#graph-section {
+text-align: center;
+padding: 40px 20px 60px;
 }
 
-body.dark-mode #graphCanvas {
-background: #1a1c29;
+#graphCanvas {
+background: #fff;
+border-radius: 10px;
+box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+margin-top: 15px;
 }
 
 /* ------------------------------
@@ -286,30 +290,8 @@ FOOTER
 footer {
 text-align: center;
 background: #2a2f6d;
-color: white;
+color: #fff;
 padding: 1rem;
 font-size: 0.9rem;
 margin-top: auto;
-}
-
-/* ------------------------------
-RESPONSIVE DESIGN
------------------------------- */
-@media (max-width: 768px) {
-.cards-container {
-flex-direction: column;
-align-items: center;
-}
-
-.route-controls {
-flex-direction: column;
-}
-
-#map {
-width: 95%;
-}
-
-#graphCanvas {
-width: 90%;
-}
 }
