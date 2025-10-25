@@ -11,7 +11,6 @@ def chatbot_reply():
     data = request.get_json()
     user_input = data.get("user_input", "").lower()
 
-    # ====== LOGIKA CHATBOT SEDERHANA ======
     if "ugm" in user_input and "malioboro" in user_input:
         response = "Rute terbaik dari Malioboro ke UGM adalah lewat Jalan Margo Utomo dan Cik Ditiro. Sekitar 15 menit perjalanan 🚗."
     elif "tugu" in user_input:
@@ -26,4 +25,4 @@ def chatbot_reply():
     return jsonify({"response": response})
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000)
