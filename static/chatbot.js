@@ -4,12 +4,35 @@ const sendBtn = document.getElementById("send-btn");
 const userInput = document.getElementById("user-input");
 const chatMessages = document.getElementById("chatbot-messages");
 
+// === ANIMATED POP EFFECT ===
+function showPopBubble(x, y) {
+  const bubble = document.createElement("div");
+  bubble.className = "chatbot-pop";
+  bubble.textContent = "💬";
+  bubble.style.left = `${x}px`;
+  bubble.style.top = `${y}px`;
+
+  document.body.appendChild(bubble);
+
+  // animasi fade-out dan hapus elemen
+  setTimeout(() => {
+    bubble.style.opacity = "0";
+    bubble.style.transform = "translateY(-30px) scale(0.8)";
+  }, 50);
+
+  setTimeout(() => {
+    bubble.remove();
+  }, 600);
+}
+
 // Toggle chatbot window
-chatbotButton.addEventListener("click", () => {
+chatbotButton.addEventListener("click", (e) => {
   chatbotContainer.classList.toggle("hidden");
+  // munculkan bubble di posisi cursor
+  showPopBubble(e.clientX, e.clientY);
 });
 
-// Kirim pesan ke backend Flask
+// === CHATBOT CORE ===
 async function sendMessage() {
   const message = userInput.value.trim();
   if (!message) return;
@@ -18,7 +41,7 @@ async function sendMessage() {
   chatMessages.innerHTML += `<div class="user"><b>Kamu:</b> ${message}</div>`;
   userInput.value = "";
 
-  // kirim ke backend
+  // kirim ke backend Flask
   const res = await fetch("/api/chatbot", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
