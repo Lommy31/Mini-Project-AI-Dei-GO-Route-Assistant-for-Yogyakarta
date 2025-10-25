@@ -2,9 +2,25 @@ from flask import Flask, render_template, request, jsonify
 
 app = Flask(__name__)
 
-@app.route("/")
-def home():
-    return render_template("index.html")
+@app.route("/api/route", methods=["POST"])
+def get_route():
+    data = request.get_json()
+    start = data.get("start")
+    end = data.get("end")
+
+    # contoh rute sederhana (dummy)
+    routes = {
+        ("Malioboro", "UGM"): ["Malioboro", "Tugu Jogja", "UGM"],
+        ("Tugu Jogja", "Stasiun Tugu"): ["Tugu Jogja", "Stasiun Tugu"],
+        ("Keraton", "Alun-Alun Kidul"): ["Keraton", "Alun-Alun Kidul"],
+    }
+
+    route = routes.get((start, end))
+    if not route:
+        return jsonify({"error": "Rute belum tersedia"}), 404
+
+    distance = len(route)  # dummy aja
+    return jsonify({"route": route, "distance": distance})
 
 @app.route("/api/chatbot", methods=["POST"])
 def chatbot_reply():
