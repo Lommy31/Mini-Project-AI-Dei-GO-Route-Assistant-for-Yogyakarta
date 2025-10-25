@@ -5,8 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dei-GO | Route Assistant</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 
   <style>
@@ -100,6 +98,92 @@
       margin-top: 15px;
       font-size: 1.1rem;
     }
+
+    /* === Chatbot Style === */
+    #chatbot-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #4f46e5;
+      color: white;
+      font-size: 24px;
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+
+    #chatbot-container {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      width: 320px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      overflow: hidden;
+      display: none;
+      flex-direction: column;
+      z-index: 1001;
+    }
+
+    #chatbot-header {
+      background: #1e2a78;
+      color: white;
+      padding: 10px;
+      font-weight: bold;
+    }
+
+    #chatbot-messages {
+      height: 300px;
+      padding: 10px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .bot-msg {
+      background: #eef2ff;
+      padding: 8px 12px;
+      border-radius: 10px;
+      text-align: left;
+      max-width: 80%;
+      align-self: flex-start;
+    }
+
+    .user-msg {
+      background: #4f46e5;
+      color: white;
+      padding: 8px 12px;
+      border-radius: 10px;
+      text-align: right;
+      max-width: 80%;
+      align-self: flex-end;
+    }
+
+    #chatbot-input {
+      display: flex;
+      border-top: 1px solid #ddd;
+    }
+
+    #user-input {
+      flex: 1;
+      padding: 8px;
+      border: none;
+      outline: none;
+    }
+
+    #send-btn {
+      background: #4f46e5;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      cursor: pointer;
+    }
   </style>
 </head>
 
@@ -114,17 +198,17 @@
     <div class="card">
       <img src="{{ url_for('static', filename='images/tugu.jpg') }}" alt="Tugu Jogja">
       <h3>Tugu Jogja</h3>
-      <p>Ikon bersejarah Kota Yogyakarta</p>
+      <p>A historical landmark in Yogyakarta</p>
     </div>
     <div class="card">
       <img src="{{ url_for('static', filename='images/malioboro.jpg') }}" alt="Malioboro">
       <h3>Malioboro</h3>
-      <p>Tempat belanja terkenal di Jogja</p>
+      <p>One of The famous shopping street in Yogyakarta</p>
     </div>
     <div class="card">
       <img src="{{ url_for('static', filename='images/keraton.jpg') }}" alt="Keraton">
       <h3>Keraton</h3>
-      <p>Istana dan tempat tinggal Sultan</p>
+      <p>The magnificent Sultan’s Palace</p>
     </div>
     <div class="card">
       <img src="{{ url_for('static', filename='images/ugm.jpg') }}" alt="UGM">
@@ -176,11 +260,20 @@
   <!-- Map -->
   <div id="map"></div>
 
-  <!-- Leaflet JS -->
+  <div id="chatbot-button">💬</div>
+  <div id="chatbot-container">
+    <div id="chatbot-header">Dei-GO Chatbot 🤖</div>
+    <div id="chatbot-messages"></div>
+    <div id="chatbot-input">
+      <input type="text" id="user-input" placeholder="Ketik pertanyaan..." />
+      <button id="send-btn">Kirim</button>
+    </div>
+  </div>
+
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="{{ url_for('static', filename='chatbot.js') }}"></script>
 
   <script>
-    // Lokasi koordinat
     const locations = {
       "Tugu Jogja": [-7.7829, 110.3671],
       "Stasiun Tugu": [-7.7891, 110.3638],
@@ -192,7 +285,6 @@
       "Bandara": [-7.9053, 110.0567]
     };
 
-    // Map
     const map = L.map('map').setView([-7.79, 110.366], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
@@ -202,7 +294,6 @@
     let routeLine = null;
     let markers = [];
 
-    // Fungsi mencari rute
     async function findRoute() {
       const start = document.getElementById('start').value;
       const end = document.getElementById('end').value;
@@ -227,12 +318,10 @@
 
       resultDiv.innerHTML = `🚗 <b>Rute:</b> ${data.route.join(' → ')}<br>📏 <b>Jarak:</b> ${data.distance} km`;
 
-      // Hapus rute sebelumnya
       if (routeLine) map.removeLayer(routeLine);
       markers.forEach(m => map.removeLayer(m));
       markers = [];
 
-      // Tambahkan rute baru
       const coords = data.route.map(r => locations[r]).filter(Boolean);
       routeLine = L.polyline(coords, { color: 'blue', weight: 4 }).addTo(map);
 
@@ -243,20 +332,5 @@
       map.fitBounds(coords);
     }
   </script>
-  <!-- Chatbot Floating Button -->
-<div id="chatbot-button">💬</div>
-
-<!-- Chatbot Window -->
-<div id="chatbot-container" class="hidden">
-  <div id="chatbot-header">Dei-GO Chatbot 🤖</div>
-  <div id="chatbot-messages"></div>
-  <div id="chatbot-input">
-    <input type="text" id="user-input" placeholder="Ketik pesan..." />
-    <button id="send-btn">Kirim</button>
-  </div>
-</div>
-
-<!-- Tambahkan link ke JS chatbot -->
-<script src="{{ url_for('static', filename='chatbot.js') }}"></script>
 </body>
 </html>
