@@ -9,12 +9,95 @@
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background-color: #eef2ff;
+      text-align: center;
+    }
+
+    header {
+      background-color: #1e2a78;
+      color: white;
+      padding: 20px 0;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 250px;
+      transition: transform 0.3s;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+    }
+
+    .card img {
+      width: 100%;
+      border-radius: 12px 12px 0 0;
+      height: 160px;
+      object-fit: cover;
+    }
+
+    .card h3 {
+      margin: 10px 0 5px;
+      color: #1e2a78;
+    }
+
+    .card p {
+      color: #555;
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+    }
+
+    .route-section {
+      margin: 40px auto;
+      width: 80%;
+      max-width: 700px;
+      text-align: center;
+    }
+
     #map {
       height: 400px;
       width: 80%;
+      max-width: 900px;
       margin: 30px auto;
       border-radius: 12px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    select, button {
+      margin: 10px;
+      padding: 10px 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: #4f46e5;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #4338ca;
+    }
+
+    #result {
+      margin-top: 15px;
+      font-size: 1.1rem;
     }
   </style>
 </head>
@@ -24,6 +107,7 @@
     <p>AI Route Assistant for Yogyakarta City Destinations</p>
   </header>
 
+  <!-- Section Foto -->
   <section class="hero">
     <div class="card">
       <img src="{{ url_for('static', filename='images/tugu.jpg') }}" alt="Tugu Jogja">
@@ -42,6 +126,7 @@
     </div>
   </section>
 
+  <!-- Section Form -->
   <section class="route-section">
     <h2>Select Your Route</h2>
     <div>
@@ -64,21 +149,18 @@
     <div id="result"></div>
   </section>
 
-  <!-- Map Section -->
+  <!-- Map -->
   <div id="map"></div>
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
   <script>
-    // Koordinat tiap lokasi
     const locations = {
       "Tugu Jogja": [-7.7829, 110.3671],
       "Malioboro": [-7.7930, 110.3658],
       "Keraton Yogyakarta": [-7.8056, 110.3649]
     };
 
-    // Inisialisasi peta
     const map = L.map('map').setView([-7.79, 110.366], 14);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
@@ -86,6 +168,7 @@
     }).addTo(map);
 
     let routeLine = null;
+    let markers = [];
 
     async function findRoute() {
       const start = document.getElementById('start').value;
@@ -97,42 +180,28 @@
         return;
       }
 
-      try {
-        const res = await fetch('/api/route', {
-          method: 'POST',
-          headers: {'Content-Type': 'application/json'},
-          body: JSON.stringify({ start, end })
-        });
-        const data = await res.json();
+      const res = await fetch('/api/route', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ start, end })
+      });
+      const data = await res.json();
 
-        if (data.error) {
-          resultDiv.innerText = "⚠️ " + data.error;
-        } else {
-          resultDiv.innerHTML = `🚗 <b>Rute:</b> ${data.route.join(' → ')}<br>📏 <b>Jarak:</b> ${data.distance} km`;
+      resultDiv.innerHTML = `🚗 <b>Rute:</b> ${data.route.join(' → ')}<br>📏 <b>Jarak:</b> ${data.distance} km`;
 
-          // Hapus rute lama kalau ada
-          if (routeLine) {
-            map.removeLayer(routeLine);
-          }
+      if (routeLine) map.removeLayer(routeLine);
+      markers.forEach(m => map.removeLayer(m));
+      markers = [];
 
-          // Gambar rute baru
-          const startCoords = locations[start];
-          const endCoords = locations[end];
+      const startCoords = locations[start];
+      const endCoords = locations[end];
 
-          if (startCoords && endCoords) {
-            routeLine = L.polyline([startCoords, endCoords], { color: 'blue', weight: 4 }).addTo(map);
+      routeLine = L.polyline([startCoords, endCoords], { color: 'blue', weight: 4 }).addTo(map);
 
-            // Tambahkan marker
-            L.marker(startCoords).addTo(map).bindPopup(`<b>${start}</b>`).openPopup();
-            L.marker(endCoords).addTo(map).bindPopup(`<b>${end}</b>`);
+      markers.push(L.marker(startCoords).addTo(map).bindPopup(`<b>${start}</b>`));
+      markers.push(L.marker(endCoords).addTo(map).bindPopup(`<b>${end}</b>`));
 
-            // Zoom agar rute pas di layar
-            map.fitBounds([startCoords, endCoords]);
-          }
-        }
-      } catch (err) {
-        resultDiv.innerText = "❌ Gagal menghubungkan ke server backend.";
-      }
+      map.fitBounds([startCoords, endCoords]);
     }
   </script>
 </body>
