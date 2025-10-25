@@ -5,9 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dei-GO | Route Assistant</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
-  <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
   <style>
     body {
       margin: 0;
@@ -95,9 +94,17 @@
       background-color: #4338ca;
     }
 
-    #result {
+    #route-output {
       margin-top: 15px;
       font-size: 1.1rem;
+    }
+
+    #route-output img {
+      width: 150px;
+      height: 100px;
+      border-radius: 8px;
+      object-fit: cover;
+      margin: 10px;
     }
   </style>
 </head>
@@ -108,22 +115,8 @@
   </header>
 
   <!-- Section Foto -->
-  <section class="hero">
-    <div class="card">
-      <img src="{{ url_for('static', filename='images/tugu.jpg') }}" alt="Tugu Jogja">
-      <h3>Tugu Jogja</h3>
-      <p>Ikon bersejarah di pusat kota Yogyakarta.</p>
-    </div>
-    <div class="card">
-      <img src="{{ url_for('static', filename='images/malioboro.jpg') }}" alt="Malioboro">
-      <h3>Malioboro</h3>
-      <p>Jalan belanja paling terkenal di Jogja.</p>
-    </div>
-    <div class="card">
-      <img src="{{ url_for('static', filename='images/keraton.jpg') }}" alt="Keraton">
-      <h3>Keraton Yogyakarta</h3>
-      <p>Istana megah tempat tinggal Sultan.</p>
-    </div>
+  <section class="hero" id="destination-cards">
+    <!-- Cards akan dibuat otomatis via JS -->
   </section>
 
   <!-- Section Form -->
@@ -131,78 +124,17 @@
     <h2>Select Your Route</h2>
     <div>
       <label>Origin:</label>
-      <select id="start">
-        <option value="">Select Origin</option>
-        <option value="Tugu Jogja">Tugu Jogja</option>
-        <option value="Malioboro">Malioboro</option>
-        <option value="Keraton Yogyakarta">Keraton Yogyakarta</option>
-      </select>
+      <select id="origin"></select>
       <label>Destination:</label>
-      <select id="end">
-        <option value="">Select Destination</option>
-        <option value="Tugu Jogja">Tugu Jogja</option>
-        <option value="Malioboro">Malioboro</option>
-        <option value="Keraton Yogyakarta">Keraton Yogyakarta</option>
-      </select>
-      <button onclick="findRoute()">Find Route</button>
+      <select id="destination"></select>
+      <button id="find-route-btn">Find Route</button>
     </div>
-    <div id="result"></div>
+    <div id="route-output"></div>
   </section>
 
-  <!-- Map -->
   <div id="map"></div>
 
-  <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script>
-    const locations = {
-      "Tugu Jogja": [-7.7829, 110.3671],
-      "Malioboro": [-7.7930, 110.3658],
-      "Keraton Yogyakarta": [-7.8056, 110.3649]
-    };
-
-    const map = L.map('map').setView([-7.79, 110.366], 14);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    let routeLine = null;
-    let markers = [];
-
-    async function findRoute() {
-      const start = document.getElementById('start').value;
-      const end = document.getElementById('end').value;
-      const resultDiv = document.getElementById('result');
-
-      if (!start || !end) {
-        resultDiv.innerText = "Please select both origin and destination.";
-        return;
-      }
-
-      const res = await fetch('/api/route', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({ start, end })
-      });
-      const data = await res.json();
-
-      resultDiv.innerHTML = `🚗 <b>Rute:</b> ${data.route.join(' → ')}<br>📏 <b>Jarak:</b> ${data.distance} km`;
-
-      if (routeLine) map.removeLayer(routeLine);
-      markers.forEach(m => map.removeLayer(m));
-      markers = [];
-
-      const startCoords = locations[start];
-      const endCoords = locations[end];
-
-      routeLine = L.polyline([startCoords, endCoords], { color: 'blue', weight: 4 }).addTo(map);
-
-      markers.push(L.marker(startCoords).addTo(map).bindPopup(`<b>${start}</b>`));
-      markers.push(L.marker(endCoords).addTo(map).bindPopup(`<b>${end}</b>`));
-
-      map.fitBounds([startCoords, endCoords]);
-    }
-  </script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
