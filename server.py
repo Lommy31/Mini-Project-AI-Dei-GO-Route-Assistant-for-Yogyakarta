@@ -2,26 +2,21 @@ from flask import Flask, request, jsonify, render_template
 from flask_cors import CORS
 import networkx as nx
 import os
+import json
 
-app = Flask(__name__)  # ← pakai default path
+app = Flask(__name__)
 CORS(app)
 
-# === Graph setup ===
-edges = [
-    ("Tugu Jogja", "Stasiun Tugu", 1),
-    ("Tugu Jogja", "UGM", 4),
-    ("Tugu Jogja", "Malioboro", 2),
-    ("Stasiun Tugu", "Malioboro", 1),
-    ("Malioboro", "Keraton", 2),
-    ("Keraton", "Alun-Alun Kidul", 1),
-    ("UGM", "Monjali", 3),
-    ("UGM", "Bandara", 7),
-]
+# === Load graph data from JSON ===
+with open(os.path.join("data", "graph_data.json"), "r") as f:
+    edges = json.load(f)
+
+# === Build graph ===
 G = nx.Graph()
 for src, dest, dist in edges:
     G.add_edge(src, dest, weight=dist)
 
-# === Routes ===
+# === ROUTES ===
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -37,7 +32,12 @@ def route():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-# === Chatbot (contoh sederhana) ===
+# === NEW: Send list of all locations ===
+@app.route("/api/locations")
+def get_locations():
+    return jsonify(sorted(G.nodes()))
+
+# === Chatbot (simple example) ===
 @app.route("/api/chatbot", methods=["POST"])
 def chatbot():
     data = request.get_json()
@@ -46,6 +46,5 @@ def chatbot():
 
 # === Run ===
 if __name__ == "__main__":
-    import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
