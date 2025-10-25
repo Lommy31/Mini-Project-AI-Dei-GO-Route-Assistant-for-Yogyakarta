@@ -1,24 +1,21 @@
-<script>
-  async function findRoute() {
-    const start = document.getElementById('start').value;
-    const end = document.getElementById('end').value;
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Route Assistant</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <h1>DeiGO Route Assistant</h1>
+  <label>Mulai:</label>
+  <input id="start" type="text" placeholder="Tugu Jogja">
+  <label>Tujuan:</label>
+  <input id="end" type="text" placeholder="Keraton">
+  <button onclick="findRoute()">Cari Rute</button>
 
-    const res = await fetch('/api/route', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({start, end})
-    });
+  <div id="result"></div>
 
-    const data = await res.json();
-
-    // Cek kalau responsenya valid
-    if (data.route && data.distance !== undefined) {
-      document.getElementById('result').innerHTML = `
-        <p>Jarak dari <b>${data.route[0]}</b> ke <b>${data.route[data.route.length - 1]}</b> adalah <b>${data.distance} km</b>.</p>
-        <p>Rute: ${data.route.join(" → ")}</p>
-      `;
-    } else {
-      document.getElementById('result').textContent = 'Rute tidak ditemukan.';
-    }
-  }
-</script>
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
