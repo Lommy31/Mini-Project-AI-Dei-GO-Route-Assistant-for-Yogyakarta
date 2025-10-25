@@ -19,12 +19,10 @@ edges = [
     ("Monjali", "Bandara", 8)
 ]
 
-# Bangun graf
 G = nx.Graph()
 for src, dest, dist in edges:
-    G.add_edge(src.lower(), dest.lower(), weight=dist)  # ubah jadi lowercase semua
+    G.add_edge(src.lower(), dest.lower(), weight=dist)
 
-# Mapping alias biar fleksibel
 aliases = {
     "ugm": "ugm",
     "kampus ugm": "ugm",
@@ -62,25 +60,26 @@ def get_response(user_input):
     """Chatbot sederhana untuk sapaan + perhitungan rute."""
     user_input = user_input.lower().strip()
 
-    # Respons umum
     if user_input == "" or user_input in ["hai", "halo", "hey"]:
         return "Halo! 👋 Aku asisten rute Jogja kamu. Coba ketik 'dari UGM ke Bandara' untuk cari jalur tercepat!"
-    elif "tugu" in user_input and "dari" not in user_input:
-        return "Kamu mau ke Tugu Jogja ya?"
     elif "terima kasih" in user_input:
         return "Sama-sama! Senang bisa membantu 😊"
     elif "apa kabar" in user_input:
         return "Aku baik-baik aja! Siap bantu kamu cari rute hari ini 😄"
 
-    # Deteksi format: "dari [A] ke [B]"
-    match = re.search(r"dari\s+([\w\s\-]+)\s+ke\s+([\w\s\-]+)", user_input)
+    # 🧭 Tambahan: dukung kalimat seperti "aku mau ke UGM dari Malioboro"
+    match = re.search(r"(?:dari\s+([\w\s\-]+)\s+ke\s+([\w\s\-]+))|(?:ke\s+([\w\s\-]+)\s+dari\s+([\w\s\-]+))", user_input)
     if match:
-        start_raw = match.group(1).strip()
-        end_raw = match.group(2).strip()
+        # Deteksi apakah formatnya “dari A ke B” atau “ke B dari A”
+        if match.group(1) and match.group(2):
+            start_raw = match.group(1).strip()
+            end_raw = match.group(2).strip()
+        else:
+            start_raw = match.group(4).strip()
+            end_raw = match.group(3).strip()
 
-        # Coba cocokin dengan alias
-        start = aliases.get(start_raw, start_raw.lower())
-        end = aliases.get(end_raw, end_raw.lower())
+        start = aliases.get(start_raw.lower(), start_raw.lower())
+        end = aliases.get(end_raw.lower(), end_raw.lower())
 
         result = find_shortest_path(start, end)
         if "error" in result:
@@ -89,5 +88,4 @@ def get_response(user_input):
         route = " → ".join([loc.title() for loc in result["route"]])
         return f"🚗 Rute tercepat dari {start_raw.title()} ke {end_raw.title()} adalah:\n{route}\n🛣️ Jarak total: {result['distance']} km"
 
-    # Kalau input tidak dikenali
     return "Maaf, aku belum paham maksudmu 😅. Coba ketik 'dari UGM ke Bandara' untuk contoh perhitungan rute!"
