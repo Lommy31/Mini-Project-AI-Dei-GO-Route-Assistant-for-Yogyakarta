@@ -1,6 +1,7 @@
 // ===============================
 // DEI-GO Smart Route Assistant
 // ===============================
+
 document.addEventListener("DOMContentLoaded", () => {
   // -------------------------------
   // ELEMENTS
@@ -56,12 +57,12 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   // -------------------------------
-  // DROPDOWN OPTIONS
+  // POPULATE DROPDOWN OPTIONS
   // -------------------------------
-  for (const name of Object.keys(locations)) {
+  Object.keys(locations).forEach((name) => {
     originSelect.innerHTML += `<option value="${name}">${name}</option>`;
     destinationSelect.innerHTML += `<option value="${name}">${name}</option>`;
-  }
+  });
 
   // -------------------------------
   // DESTINATION CARDS
@@ -69,7 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const cardsContainer = document.getElementById("destination-cards");
   for (const [name, data] of Object.entries(locations)) {
     cardsContainer.innerHTML += `
-      <div class="card">
+      <div class="card fade-in">
         <img src="${data.img}" alt="${name}">
         <h3>${name}</h3>
         <p>${data.desc}</p>
@@ -77,11 +78,11 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // -------------------------------
-  // LEAFLET MAP
+  // LEAFLET MAP SETUP
   // -------------------------------
   const map = L.map("map").setView([-7.79, 110.366], 13);
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-    attribution: '&copy; OpenStreetMap contributors',
+    attribution: '&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
   }).addTo(map);
 
   let routeLine, startMarker, endMarker;
@@ -92,8 +93,13 @@ document.addEventListener("DOMContentLoaded", () => {
   findRouteBtn.addEventListener("click", async () => {
     const start = originSelect.value;
     const end = destinationSelect.value;
+
     if (!start || !end) {
-      routeOutput.innerHTML = "<p style='color:red;'>Select both locations!</p>";
+      routeOutput.innerHTML = "<p style='color:red;'>⚠️ Please select both locations.</p>";
+      return;
+    }
+    if (start === end) {
+      routeOutput.innerHTML = "<p style='color:red;'>❌ Start and destination cannot be the same!</p>";
       return;
     }
 
@@ -104,14 +110,17 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ start, end }),
       });
       const data = await res.json();
+
       if (data.error) throw new Error(data.error);
 
       routeOutput.innerHTML = `
-        <p><b>🛣️ Route:</b> ${data.route.join(" → ")}</p>
-        <p><b>📏 Distance:</b> ${data.distance} km</p>
-        <div>
-          <img src="${locations[start].img}" alt="${start}">
-          <img src="${locations[end].img}" alt="${end}">
+        <div class="fade-in">
+          <p><b>🛣️ Route:</b> ${data.route.join(" → ")}</p>
+          <p><b>📏 Distance:</b> ${data.distance} km</p>
+          <div class="route-images">
+            <img src="${locations[start].img}" alt="${start}">
+            <img src="${locations[end].img}" alt="${end}">
+          </div>
         </div>
       `;
 
@@ -120,11 +129,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
       [routeLine, startMarker, endMarker].forEach((m) => m && map.removeLayer(m));
       routeLine = L.polyline([startC, endC], { color: "blue", weight: 4 }).addTo(map);
-      startMarker = L.marker(startC).addTo(map).bindPopup(start);
-      endMarker = L.marker(endC).addTo(map).bindPopup(end);
+      startMarker = L.marker(startC).addTo(map).bindPopup(`<b>${start}</b>`);
+      endMarker = L.marker(endC).addTo(map).bindPopup(`<b>${end}</b>`);
       map.fitBounds([startC, endC]);
+
     } catch (err) {
-      routeOutput.innerHTML = `<p style="color:red;">Error: ${err.message}</p>`;
+      routeOutput.innerHTML = `<p style="color:red;">⚠️ Error: ${err.message}</p>`;
     }
   });
 
@@ -133,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // -------------------------------
   function addMessage(sender, text) {
     const div = document.createElement("div");
-    div.classList.add(sender === "You" ? "user-message" : "bot-message");
+    div.classList.add(sender === "You" ? "user-message" : "bot-message", "fade-in");
     div.innerHTML = `<div class="bubble"><b>${sender}:</b> ${text}</div>`;
     chatOutput.appendChild(div);
     chatOutput.scrollTop = chatOutput.scrollHeight;
@@ -142,6 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
   async function sendMessage() {
     const message = userInput.value.trim();
     if (!message) return;
+
     addMessage("You", message);
     userInput.value = "";
 
@@ -152,12 +163,28 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify({ user_input: message }),
       });
       const data = await res.json();
-      addMessage("Dei-GO", data.response || "I'm not sure I understand 🤔");
+
+      addMessage("Dei-GO", data.response || "Hmm... I'm not sure I understand 🤔");
     } catch {
-      addMessage("Dei-GO", "Server error, please try again later.");
+      addMessage("Dei-GO", "⚠️ Server error. Please try again later.");
     }
   }
 
   sendBtn.addEventListener("click", sendMessage);
-  userInput.addEventListener("keypress", (e) => e.key === "Enter" && sendMessage());
+  userInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendMessage();
+  });
+
+  // -------------------------------
+  // SMALL UI TOUCH: FADE-IN ANIMATION
+  // -------------------------------
+  const style = document.createElement("style");
+  style.textContent = `
+    .fade-in { animation: fadeIn 0.5s ease-in; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  `;
+  document.head.appendChild(style);
 });
