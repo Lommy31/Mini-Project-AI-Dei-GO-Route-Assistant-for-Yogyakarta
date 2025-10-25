@@ -3,7 +3,7 @@ from flask_cors import CORS
 import networkx as nx
 import os
 
-app = Flask(__name__, template_folder=os.path.join(os.path.dirname(__file__), 'templates'))
+app = Flask(__name__)  # ← pakai default path
 CORS(app)
 
 # === Graph setup ===
