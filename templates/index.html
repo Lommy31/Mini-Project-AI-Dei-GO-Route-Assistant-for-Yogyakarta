@@ -99,14 +99,14 @@
       font-size: 1.1rem;
     }
 
-    /* === Chatbot Style === */
+    /* === Chatbot Styles === */
     #chatbot-button {
       position: fixed;
       bottom: 20px;
       right: 20px;
       background-color: #4f46e5;
       color: white;
-      font-size: 24px;
+      font-size: 26px;
       border: none;
       border-radius: 50%;
       width: 60px;
@@ -114,6 +114,9 @@
       cursor: pointer;
       box-shadow: 0 4px 10px rgba(0,0,0,0.3);
       z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     #chatbot-container {
@@ -122,12 +125,18 @@
       right: 20px;
       width: 320px;
       background: white;
-      border-radius: 12px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.25);
       overflow: hidden;
       display: none;
       flex-direction: column;
       z-index: 1001;
+      animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     #chatbot-header {
@@ -144,6 +153,7 @@
       display: flex;
       flex-direction: column;
       gap: 8px;
+      scroll-behavior: smooth;
     }
 
     .bot-msg {
@@ -153,6 +163,7 @@
       text-align: left;
       max-width: 80%;
       align-self: flex-start;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
     .user-msg {
@@ -163,6 +174,7 @@
       text-align: right;
       max-width: 80%;
       align-self: flex-end;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
     #chatbot-input {
@@ -175,6 +187,7 @@
       padding: 8px;
       border: none;
       outline: none;
+      font-size: 0.9rem;
     }
 
     #send-btn {
@@ -183,6 +196,10 @@
       border: none;
       padding: 8px 15px;
       cursor: pointer;
+    }
+
+    #send-btn:hover {
+      background: #4338ca;
     }
   </style>
 </head>
@@ -195,31 +212,19 @@
 
   <!-- Section Foto -->
   <section class="hero">
+    {% for name, image, desc in [
+      ('Tugu Jogja', 'tugu.jpg', 'A historical landmark in Yogyakarta'),
+      ('Malioboro', 'malioboro.jpg', 'One of the famous shopping streets in Yogyakarta'),
+      ('Keraton', 'keraton.jpg', 'The magnificent Sultan’s Palace'),
+      ('UGM', 'ugm.jpg', 'Universitas Gadjah Mada'),
+      ('Bandara', 'bandara.jpg', 'Yogyakarta International Airport')
+    ] %}
     <div class="card">
-      <img src="{{ url_for('static', filename='images/tugu.jpg') }}" alt="Tugu Jogja">
-      <h3>Tugu Jogja</h3>
-      <p>A historical landmark in Yogyakarta</p>
+      <img src="{{ url_for('static', filename='images/' + image) }}" alt="{{ name }}">
+      <h3>{{ name }}</h3>
+      <p>{{ desc }}</p>
     </div>
-    <div class="card">
-      <img src="{{ url_for('static', filename='images/malioboro.jpg') }}" alt="Malioboro">
-      <h3>Malioboro</h3>
-      <p>One of The famous shopping street in Yogyakarta</p>
-    </div>
-    <div class="card">
-      <img src="{{ url_for('static', filename='images/keraton.jpg') }}" alt="Keraton">
-      <h3>Keraton</h3>
-      <p>The magnificent Sultan’s Palace</p>
-    </div>
-    <div class="card">
-      <img src="{{ url_for('static', filename='images/ugm.jpg') }}" alt="UGM">
-      <h3>UGM</h3>
-      <p>Universitas Gadjah Mada</p>
-    </div>
-    <div class="card">
-      <img src="{{ url_for('static', filename='images/bandara.jpg') }}" alt="Bandara">
-      <h3>Bandara</h3>
-      <p>Yogyakarta International Airport</p>
-    </div>
+    {% endfor %}
   </section>
 
   <!-- Section Form -->
@@ -260,7 +265,9 @@
   <!-- Map -->
   <div id="map"></div>
 
+  <!-- === Chatbot Floating Button & Window === -->
   <div id="chatbot-button">💬</div>
+
   <div id="chatbot-container">
     <div id="chatbot-header">Dei-GO Chatbot 🤖</div>
     <div id="chatbot-messages"></div>
@@ -274,6 +281,7 @@
   <script src="{{ url_for('static', filename='chatbot.js') }}"></script>
 
   <script>
+    // === MAP SETUP ===
     const locations = {
       "Tugu Jogja": [-7.7829, 110.3671],
       "Stasiun Tugu": [-7.7891, 110.3638],
@@ -331,6 +339,13 @@
 
       map.fitBounds(coords);
     }
+
+    // === CHATBOT TOGGLE ===
+    const chatButton = document.getElementById("chatbot-button");
+    const chatContainer = document.getElementById("chatbot-container");
+    chatButton.addEventListener("click", () => {
+      chatContainer.style.display = chatContainer.style.display === "flex" ? "none" : "flex";
+    });
   </script>
 </body>
 </html>
