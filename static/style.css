@@ -1,297 +1,250 @@
 /* ==========================
 DEI-GO SMART ROUTE ASSISTANT
-============================= */
+Simplified Clean Version
+========================= */
 
 /* ------------------------------
-IMPORT & GLOBAL RESET
+GLOBAL RESET & FONT
 ------------------------------ */
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap
-");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
 
-{
-margin: 0;
-padding: 0;
-box-sizing: border-box;
-font-family: "Poppins", sans-serif;
-transition: background-color 0.3s ease, color 0.3s ease;
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
 }
 
 body {
-display: flex;
-flex-direction: column;
-min-height: 100vh;
-background-color: #f5f6fa;
-color: #222;
-}
-
-/* ------------------------------
-DARK MODE STYLING
------------------------------- */
-body.dark-mode {
-background-color: #1b1e2b;
-color: #f0f0f0;
-}
-
-body.dark-mode header {
-background-color: #292f4c;
-}
-
-body.dark-mode .card,
-body.dark-mode #route-output,
-body.dark-mode .chat-container {
-background: #25293b;
-color: #f5f5f5;
-border-color: #3a3f5a;
-}
-
-body.dark-mode footer {
-background: #292f4c;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #f5f6fa;
+  color: #222;
 }
 
 /* ------------------------------
 HEADER
 ------------------------------ */
 header {
-background-color: #2a2f6d;
-color: white;
-text-align: center;
-padding: 1.5rem 1rem;
-box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+  background-color: #2a2f6d;
+  color: white;
+  text-align: center;
+  padding: 1.5rem 1rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
 }
 
 header h1 {
-font-size: 2rem;
-font-weight: 600;
+  font-size: 2rem;
+  font-weight: 600;
 }
 
 header p {
-opacity: 0.9;
-margin-bottom: 0.5rem;
-}
-
-#mode-toggle {
-background-color: #fff;
-color: #2a2f6d;
-border: none;
-border-radius: 8px;
-padding: 8px 16px;
-cursor: pointer;
-font-weight: 600;
-transition: all 0.3s ease;
-}
-
-#mode-toggle:hover {
-background-color: #e0e3ff;
+  opacity: 0.9;
+  margin-bottom: 0.5rem;
 }
 
 /* ------------------------------
 DESTINATION CARDS
 ------------------------------ */
 .cards-container {
-display: flex;
-justify-content: center;
-align-items: stretch;
-flex-wrap: wrap;
-gap: 25px;
-padding: 40px 20px;
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: 25px;
+  padding: 40px 20px;
 }
 
 .card {
-background: white;
-border-radius: 14px;
-overflow: hidden;
-width: 280px;
-text-align: center;
-box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-transition: all 0.3s ease;
-border: 1px solid #ddd;
+  background: white;
+  border-radius: 14px;
+  overflow: hidden;
+  width: 280px;
+  text-align: center;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  border: 1px solid #ddd;
 }
 
 .card:hover {
-transform: translateY(-8px);
-box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  transform: translateY(-8px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
 }
 
 .card img {
-width: 100%;
-height: 180px;
-object-fit: cover;
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
 }
 
 .card h3 {
-margin: 12px 0 6px;
-color: #2a2f6d;
-font-size: 1.2rem;
+  margin: 12px 0 6px;
+  color: #2a2f6d;
+  font-size: 1.2rem;
 }
 
 .card p {
-color: #555;
-padding: 0 12px 20px;
-font-size: 0.95rem;
+  color: #555;
+  padding: 0 12px 20px;
+  font-size: 0.95rem;
 }
 
 /* ------------------------------
 ROUTE SECTION
 ------------------------------ */
 #route-section {
-text-align: center;
-padding: 30px 20px 40px;
+  text-align: center;
+  padding: 30px 20px 40px;
 }
 
 .route-controls {
-display: flex;
-justify-content: center;
-flex-wrap: wrap;
-gap: 12px;
-margin-bottom: 20px;
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
 .route-controls label {
-font-weight: 600;
-color: #333;
+  font-weight: 600;
+  color: #333;
 }
 
 .route-controls select {
-padding: 10px 15px;
-border-radius: 8px;
-border: 1px solid #bbb;
-font-size: 1rem;
-outline: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 1px solid #bbb;
+  font-size: 1rem;
+  outline: none;
 }
 
 .route-controls button {
-background-color: #2a2f6d;
-color: #fff;
-border: none;
-padding: 10px 22px;
-border-radius: 8px;
-cursor: pointer;
-transition: 0.3s;
+  background-color: #2a2f6d;
+  color: #fff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
 }
 
 .route-controls button:hover {
-background-color: #1f245a;
+  background-color: #1f245a;
 }
 
 #route-output {
-background: #fff;
-color: #000;
-max-width: 600px;
-margin: 20px auto;
-padding: 20px;
-border-radius: 12px;
-text-align: left;
-line-height: 1.6;
-box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
-
-#route-output img {
-width: 80px;
-height: 80px;
-border-radius: 10px;
-margin: 10px 8px;
+  background: #fff;
+  color: #000;
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: left;
+  line-height: 1.6;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* MAP */
 #map {
-width: 90%;
-height: 400px;
-margin: 30px auto 0;
-border-radius: 12px;
-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  height: 400px;
+  margin: 30px auto 0;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
 
 /* ------------------------------
 CHATBOT
 ------------------------------ */
 #chat-section {
-text-align: center;
-padding: 40px 20px;
+  text-align: center;
+  padding: 40px 20px;
 }
 
 .chatbox {
-background: #fff;
-border-radius: 12px;
-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
-max-width: 550px;
-margin: 0 auto 20px;
-height: 320px;
-overflow-y: auto;
-padding: 15px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+  max-width: 550px;
+  margin: 0 auto 20px;
+  height: 320px;
+  overflow-y: auto;
+  padding: 15px;
 }
 
 .user-message,
 .bot-message {
-margin: 8px 0;
+  margin: 8px 0;
 }
 
 .user-message .bubble {
-background: #2a2f6d;
-color: #fff;
-padding: 10px 14px;
-border-radius: 10px;
-text-align: right;
+  background: #2a2f6d;
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  text-align: right;
 }
 
 .bot-message .bubble {
-background: #e9ecf8;
-color: #222;
-padding: 10px 14px;
-border-radius: 10px;
-text-align: left;
+  background: #e9ecf8;
+  color: #222;
+  padding: 10px 14px;
+  border-radius: 10px;
+  text-align: left;
 }
 
 .chat-input {
-display: flex;
-justify-content: center;
-gap: 10px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }
 
 .chat-input input {
-flex: 1;
-max-width: 400px;
-padding: 10px 15px;
-border-radius: 8px;
-border: 1px solid #ccc;
-font-size: 1rem;
+  flex: 1;
+  max-width: 400px;
+  padding: 10px 15px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
 }
 
 .chat-input button {
-background-color: #2a2f6d;
-color: white;
-border: none;
-padding: 10px 20px;
-border-radius: 8px;
-cursor: pointer;
+  background-color: #2a2f6d;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
 .chat-input button:hover {
-background-color: #1f245a;
+  background-color: #1f245a;
 }
 
 /* ------------------------------
 GRAPH SECTION
 ------------------------------ */
 #graph-section {
-text-align: center;
-padding: 40px 20px 60px;
+  text-align: center;
+  padding: 40px 20px 60px;
 }
 
 #graphCanvas {
-background: #fff;
-border-radius: 10px;
-box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-margin-top: 15px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  margin-top: 15px;
 }
 
 /* ------------------------------
 FOOTER
 ------------------------------ */
 footer {
-text-align: center;
-background: #2a2f6d;
-color: #fff;
-padding: 1rem;
-font-size: 0.9rem;
-margin-top: auto;
+  text-align: center;
+  background: #2a2f6d;
+  color: #fff;
+  padding: 1rem;
+  font-size: 0.9rem;
+  margin-top: auto;
 }
