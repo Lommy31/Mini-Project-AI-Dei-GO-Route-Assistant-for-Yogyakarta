@@ -8,6 +8,7 @@
 
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
   <style>
     body {
       margin: 0;
@@ -101,6 +102,7 @@
     }
   </style>
 </head>
+
 <body>
   <header>
     <h1>🧭 Dei-GO</h1>
@@ -117,22 +119,22 @@
     <div class="card">
       <img src="{{ url_for('static', filename='images/malioboro.jpg') }}" alt="Malioboro">
       <h3>Malioboro</h3>
-      <p>Tempat belanja Terkenal di Jogja</p>
+      <p>Tempat belanja terkenal di Jogja</p>
     </div>
     <div class="card">
       <img src="{{ url_for('static', filename='images/keraton.jpg') }}" alt="Keraton">
-      <h3>Keraton Yogyakarta</h3>
-      <p>Istana dan Tempat Tinggal Sultan</p>
+      <h3>Keraton</h3>
+      <p>Istana dan tempat tinggal Sultan</p>
     </div>
-     <div class="card">
+    <div class="card">
       <img src="{{ url_for('static', filename='images/ugm.jpg') }}" alt="UGM">
       <h3>UGM</h3>
       <p>Universitas Gadjah Mada</p>
     </div>
-     <div class="card">
-      <img src="{{ url_for('static', filename='images/bandara.jpg') }}" alt="Bandara Yogyakarta">
+    <div class="card">
+      <img src="{{ url_for('static', filename='images/bandara.jpg') }}" alt="Bandara">
       <h3>Bandara</h3>
-      <p>International Airport Yogyakarta</p>
+      <p>Yogyakarta International Airport</p>
     </div>
   </section>
 
@@ -144,16 +146,28 @@
       <select id="start">
         <option value="">Select Origin</option>
         <option value="Tugu Jogja">Tugu Jogja</option>
+        <option value="Stasiun Tugu">Stasiun Tugu</option>
         <option value="Malioboro">Malioboro</option>
-        <option value="Keraton Yogyakarta">Keraton Yogyakarta</option>
+        <option value="Keraton">Keraton</option>
+        <option value="Alun-Alun Kidul">Alun-Alun Kidul</option>
+        <option value="UGM">UGM</option>
+        <option value="Monjali">Monjali</option>
+        <option value="Bandara">Bandara</option>
       </select>
+
       <label>Destination:</label>
       <select id="end">
         <option value="">Select Destination</option>
         <option value="Tugu Jogja">Tugu Jogja</option>
+        <option value="Stasiun Tugu">Stasiun Tugu</option>
         <option value="Malioboro">Malioboro</option>
-        <option value="Keraton Yogyakarta">Keraton Yogyakarta</option>
+        <option value="Keraton">Keraton</option>
+        <option value="Alun-Alun Kidul">Alun-Alun Kidul</option>
+        <option value="UGM">UGM</option>
+        <option value="Monjali">Monjali</option>
+        <option value="Bandara">Bandara</option>
       </select>
+
       <button onclick="findRoute()">Find Route</button>
     </div>
     <div id="result"></div>
@@ -164,14 +178,22 @@
 
   <!-- Leaflet JS -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
   <script>
+    // Lokasi koordinat
     const locations = {
       "Tugu Jogja": [-7.7829, 110.3671],
+      "Stasiun Tugu": [-7.7891, 110.3638],
       "Malioboro": [-7.7930, 110.3658],
-      "Keraton Yogyakarta": [-7.8056, 110.3649]
+      "Keraton": [-7.8056, 110.3649],
+      "Alun-Alun Kidul": [-7.8125, 110.3630],
+      "UGM": [-7.7700, 110.3776],
+      "Monjali": [-7.7475, 110.3705],
+      "Bandara": [-7.9053, 110.0567]
     };
 
-    const map = L.map('map').setView([-7.79, 110.366], 14);
+    // Map
+    const map = L.map('map').setView([-7.79, 110.366], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
       attribution: '&copy; OpenStreetMap contributors'
@@ -180,6 +202,7 @@
     let routeLine = null;
     let markers = [];
 
+    // Fungsi mencari rute
     async function findRoute() {
       const start = document.getElementById('start').value;
       const end = document.getElementById('end').value;
@@ -195,23 +218,29 @@
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify({ start, end })
       });
+
       const data = await res.json();
+      if (data.error) {
+        resultDiv.innerHTML = `❌ Error: ${data.error}`;
+        return;
+      }
 
       resultDiv.innerHTML = `🚗 <b>Rute:</b> ${data.route.join(' → ')}<br>📏 <b>Jarak:</b> ${data.distance} km`;
 
+      // Hapus rute sebelumnya
       if (routeLine) map.removeLayer(routeLine);
       markers.forEach(m => map.removeLayer(m));
       markers = [];
 
-      const startCoords = locations[start];
-      const endCoords = locations[end];
+      // Tambahkan rute baru
+      const coords = data.route.map(r => locations[r]).filter(Boolean);
+      routeLine = L.polyline(coords, { color: 'blue', weight: 4 }).addTo(map);
 
-      routeLine = L.polyline([startCoords, endCoords], { color: 'blue', weight: 4 }).addTo(map);
+      coords.forEach((c, i) => {
+        markers.push(L.marker(c).addTo(map).bindPopup(`<b>${data.route[i]}</b>`));
+      });
 
-      markers.push(L.marker(startCoords).addTo(map).bindPopup(`<b>${start}</b>`));
-      markers.push(L.marker(endCoords).addTo(map).bindPopup(`<b>${end}</b>`));
-
-      map.fitBounds([startCoords, endCoords]);
+      map.fitBounds(coords);
     }
   </script>
 </body>
