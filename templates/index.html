@@ -4,9 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>DeiGO Route Assistant</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <style>
-    /* --- Base layout --- */
     body {
       font-family: 'Poppins', sans-serif;
       background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
@@ -15,6 +14,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
+      flex-direction: column;
     }
 
     .container {
@@ -23,8 +23,9 @@
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
       padding: 40px;
       width: 90%;
-      max-width: 400px;
+      max-width: 500px;
       text-align: center;
+      margin-bottom: 20px;
     }
 
     h1 {
@@ -76,24 +77,51 @@
       color: #333;
       min-height: 40px;
     }
+
+    #map {
+      width: 90%;
+      max-width: 600px;
+      height: 400px;
+      background: #fafafa;
+      border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      padding: 10px;
+    }
+
+    h2 {
+      color: #303f9f;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>DeiGO Route Assistant</h1>
-
     <label>Mulai:</label>
     <input id="start" type="text" placeholder="Tugu Jogja">
-
     <label>Tujuan:</label>
     <input id="end" type="text" placeholder="Keraton">
-
     <button onclick="findRoute()">Cari Rute</button>
-
     <div id="result"></div>
   </div>
 
+  <div id="map">
+    <h2>📍 Visualisasi Rute</h2>
+    <div id="plot"></div>
+  </div>
+
   <script>
+    // Dummy posisi untuk tiap lokasi
+    const positions = {
+      "Tugu Jogja": [0, 0],
+      "Stasiun Tugu": [1, -0.2],
+      "Malioboro": [2, -0.1],
+      "Keraton": [3, -1],
+      "Alun-Alun Kidul": [4, -1.2],
+      "UGM": [1, 1],
+      "Monjali": [2, 2],
+      "Bandara": [5, -2]
+    };
+
     async function findRoute() {
       const start = document.getElementById('start').value.trim();
       const end = document.getElementById('end').value.trim();
@@ -105,31 +133,63 @@
       }
 
       try {
-        const res = await fetch('https://miniproject-ai-deigo-assistant-production.up.railway.app/api/route', {
+        const res = await fetch('/api/route', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ start, end })
         });
 
-        if (!res.ok) {
-          const errText = await res.text();
-          resultDiv.textContent = 'Terjadi kesalahan: ' + errText;
+        const data = await res.json();
+
+        if (data.error) {
+          resultDiv.textContent = data.error;
           return;
         }
 
-        const data = await res.json();
+        resultDiv.innerHTML = `
+          🚗 <b>Jarak:</b> ${data.distance} km<br>
+          🗺️ <b>Rute:</b> ${data.route.join(' → ')}
+        `;
 
-        if (data.route && data.distance !== undefined) {
-          resultDiv.innerHTML = `
-            🚗 <b>Jarak:</b> ${data.distance} km<br>
-            🗺️ <b>Rute:</b> ${data.route.join(' → ')}
-          `;
-        } else {
-          resultDiv.textContent = 'Rute tidak ditemukan.';
-        }
+        drawRoute(data.route);
       } catch (err) {
         resultDiv.textContent = '⚠️ Gagal terhubung ke server backend.';
       }
+    }
+
+    function drawRoute(route) {
+      const xs = [];
+      const ys = [];
+      const labels = [];
+
+      for (let loc of route) {
+        if (positions[loc]) {
+          xs.push(positions[loc][0]);
+          ys.push(positions[loc][1]);
+          labels.push(loc);
+        }
+      }
+
+      const trace = {
+        x: xs,
+        y: ys,
+        mode: 'lines+markers+text',
+        text: labels,
+        textposition: 'top center',
+        line: { color: '#3f51b5', width: 3 },
+        marker: { color: '#3f51b5', size: 14 }
+      };
+
+      const layout = {
+        margin: { l: 20, r: 20, t: 20, b: 20 },
+        xaxis: { visible: false },
+        yaxis: { visible: false },
+        paper_bgcolor: '#f9f9f9',
+        plot_bgcolor: '#f9f9f9',
+        autosize: true
+      };
+
+      Plotly.newPlot('plot', [trace], layout, { displayModeBar: false });
     }
   </script>
 </body>
