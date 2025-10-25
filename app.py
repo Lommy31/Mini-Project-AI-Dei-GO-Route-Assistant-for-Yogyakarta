@@ -1,8 +1,12 @@
 from flask import Flask, render_template, request, jsonify
+import json
 
-app = Flask(__name__, static_folder="static", template_folder=".")
+app = Flask(__name__)
 
-# 🟢 Route utama untuk halaman web
+# === Load data rute dari file JSON ===
+with open("data/graph_data.json", "r", encoding="utf-8") as f:
+    routes_data = json.load(f)
+
 @app.route("/")
 def home():
     return render_template("index.html")
@@ -13,17 +17,13 @@ def get_route():
     start = data.get("start")
     end = data.get("end")
 
-    routes = {
-        ("Malioboro", "UGM"): ["Malioboro", "Tugu Jogja", "UGM"],
-        ("Tugu Jogja", "Stasiun Tugu"): ["Tugu Jogja", "Stasiun Tugu"],
-        ("Keraton", "Alun-Alun Kidul"): ["Keraton", "Alun-Alun Kidul"],
-    }
+    # cari rute dari file json
+    route = routes_data.get(f"{start}-{end}") or routes_data.get(f"{end}-{start}")
 
-    route = routes.get((start, end))
     if not route:
         return jsonify({"error": "Rute belum tersedia"}), 404
 
-    distance = len(route)  # dummy aja
+    distance = len(route)
     return jsonify({"route": route, "distance": distance})
 
 @app.route("/api/chatbot", methods=["POST"])
