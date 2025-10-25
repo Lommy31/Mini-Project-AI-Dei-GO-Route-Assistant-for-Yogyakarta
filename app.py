@@ -47,7 +47,7 @@ def get_route():
 
 
 # --- Chatbot ---
-@app.route("/chat", methods=["POST"])
+@app.route("/api/chatbot", methods=["POST"])
 def chat():
     try:
         user_message = request.json.get("message", "").lower().strip()
