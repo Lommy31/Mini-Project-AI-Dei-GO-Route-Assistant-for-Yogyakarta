@@ -1,29 +1,24 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-  <meta charset="UTF-8" />
-  <title>Route Assistant Yogyakarta</title>
-</head>
-<body>
-  <h1>🗺️ Route Assistant - Yogyakarta</h1>
-  <input id="start" placeholder="Mulai dari...">
-  <input id="end" placeholder="Menuju ke...">
-  <button onclick="findRoute()">Cari Rute</button>
+<script>
+  async function findRoute() {
+    const start = document.getElementById('start').value;
+    const end = document.getElementById('end').value;
 
-  <pre id="result"></pre>
+    const res = await fetch('/api/route', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({start, end})
+    });
 
-  <script>
-    async function findRoute() {
-      const start = document.getElementById('start').value;
-      const end = document.getElementById('end').value;
-      const res = await fetch('/api/route', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({start, end})
-      });
-      const data = await res.json();
-      document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+    const data = await res.json();
+
+    // Cek kalau responsenya valid
+    if (data.route && data.distance !== undefined) {
+      document.getElementById('result').innerHTML = `
+        <p>Jarak dari <b>${data.route[0]}</b> ke <b>${data.route[data.route.length - 1]}</b> adalah <b>${data.distance} km</b>.</p>
+        <p>Rute: ${data.route.join(" → ")}</p>
+      `;
+    } else {
+      document.getElementById('result').textContent = 'Rute tidak ditemukan.';
     }
-  </script>
-</body>
-</html>
+  }
+</script>
