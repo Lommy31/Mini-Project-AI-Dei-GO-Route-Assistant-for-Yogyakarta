@@ -50,4 +50,4 @@ def chatbot():
     user_input = data.get("user_input", "").lower().strip()
 
     # Pola deteksi rute, contoh: "rute dari ugm ke malioboro"
-    pattern = r"rute dari (.+) ke (.+)
+    pattern = r"rute dari (.+) ke (.+)"
