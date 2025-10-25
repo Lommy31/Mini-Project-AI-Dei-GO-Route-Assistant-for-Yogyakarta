@@ -1,140 +1,208 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dei-GO: Smart Route & Chatbot Guide</title>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dei-GO | Route Assistant</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-    <!-- CSS -->
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static', filename='style.css') }}"
-    />
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    body {
+      margin: 0;
+      font-family: "Poppins", sans-serif;
+      background-color: #eef2ff;
+      text-align: center;
+    }
 
-    <!-- Leaflet for Maps -->
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
-    />
-    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
-  </head>
+    header {
+      background-color: #1e2a78;
+      color: white;
+      padding: 20px 0;
+    }
 
-  <body class="light-mode">
-    <!-- ========================= -->
-    <!-- HEADER -->
-    <!-- ========================= -->
-    <header>
-      <h1>🗺️ Dei-GO: Smart Route Finder & Chat Assistant</h1>
-      <p>Your intelligent travel companion in Yogyakarta.</p>
-      <button id="mode-toggle">🌙 Dark Mode</button>
-    </header>
+    .hero {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 30px;
+    }
 
-    <!-- ========================= -->
-    <!-- MAIN CONTENT -->
-    <!-- ========================= -->
-    <main>
-      <!-- DESTINATION CARDS -->
-      <section id="destination-section" class="card-section">
-        <h2>🏙️ Popular Destinations</h2>
-        <div id="destination-cards" class="cards-container">
-          <div class="card">
-            <img
-              src="{{ url_for('static', filename='images/tugu.jpg') }}"
-              alt="Tugu Jogja"
-            />
-            <h3>Tugu Jogja</h3>
-            <p>Iconic landmark of Yogyakarta city center.</p>
-          </div>
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      width: 250px;
+      transition: transform 0.3s;
+    }
 
-          <div class="card">
-            <img
-              src="{{ url_for('static', filename='images/malioboro.jpg') }}"
-              alt="Malioboro Street"
-            />
-            <h3>Malioboro Street</h3>
-            <p>The most vibrant shopping street in Yogyakarta.</p>
-          </div>
+    .card:hover {
+      transform: translateY(-5px);
+    }
 
-          <div class="card">
-            <img
-              src="{{ url_for('static', filename='images/keraton.jpg') }}"
-              alt="Keraton"
-            />
-            <h3>Keraton Yogyakarta</h3>
-            <p>The royal palace and cultural heart of the city.</p>
-          </div>
-        </div>
-      </section>
+    .card img {
+      width: 100%;
+      border-radius: 12px 12px 0 0;
+      height: 160px;
+      object-fit: cover;
+    }
 
-      <!-- ROUTE FINDER -->
-      <section id="route-section" class="card-section">
-        <h2>🚗 Find the Best Route</h2>
-        <div class="route-controls">
-          <label for="origin">Origin:</label>
-          <select id="origin">
-            <option value="">Select origin...</option>
-            <option value="Tugu Jogja">Tugu Jogja</option>
-            <option value="Stasiun Tugu">Stasiun Tugu</option>
-            <option value="Malioboro">Malioboro</option>
-            <option value="Keraton">Keraton</option>
-            <option value="Alun-Alun Kidul">Alun-Alun Kidul</option>
-            <option value="UGM">UGM</option>
-            <option value="Monjali">Monjali</option>
-            <option value="Bandara">Bandara</option>
-          </select>
+    .card h3 {
+      margin: 10px 0 5px;
+      color: #1e2a78;
+    }
 
-          <label for="destination">Destination:</label>
-          <select id="destination">
-            <option value="">Select destination...</option>
-            <option value="Tugu Jogja">Tugu Jogja</option>
-            <option value="Stasiun Tugu">Stasiun Tugu</option>
-            <option value="Malioboro">Malioboro</option>
-            <option value="Keraton">Keraton</option>
-            <option value="Alun-Alun Kidul">Alun-Alun Kidul</option>
-            <option value="UGM">UGM</option>
-            <option value="Monjali">Monjali</option>
-            <option value="Bandara">Bandara</option>
-          </select>
+    .card p {
+      color: #555;
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+    }
 
-          <button id="find-route-btn">Find Route</button>
-        </div>
+    .route-section {
+      margin: 40px auto;
+      width: 80%;
+      max-width: 700px;
+      text-align: center;
+    }
 
-        <div id="route-output" class="output-box">
-          <p>Select your route to see details here.</p>
-        </div>
+    #map {
+      height: 400px;
+      width: 80%;
+      max-width: 900px;
+      margin: 30px auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
 
-        <div id="map"></div>
-      </section>
+    select, button {
+      margin: 10px;
+      padding: 10px 15px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
 
-      <!-- CHATBOT -->
-      <section id="chat-section" class="card-section">
-        <h2>💬 Chat with Dei-GO</h2>
-        <div id="chatbox" class="chatbox"></div>
-        <div class="chat-input">
-          <input
-            type="text"
-            id="user-input"
-            placeholder="Ask Dei-GO something..."
-          />
-          <button id="send-btn">Send</button>
-        </div>
-      </section>
+    button {
+      background-color: #4f46e5;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
 
-      <!-- GRAPH SECTION -->
-      <section id="graph-section" class="card-section">
-        <h2>📊 Graph Visualization</h2>
-        <canvas id="graphCanvas" width="600" height="400"></canvas>
-      </section>
-    </main>
+    button:hover {
+      background-color: #4338ca;
+    }
 
-    <!-- ========================= -->
-    <!-- FOOTER -->
-    <!-- ========================= -->
-    <footer>
-      <p>© 2025 Dei-GO | Created for smart travel and local exploration</p>
-    </footer>
+    #result {
+      margin-top: 15px;
+      font-size: 1.1rem;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🧭 Dei-GO</h1>
+    <p>AI Route Assistant for Yogyakarta City Destinations</p>
+  </header>
 
-    <!-- SCRIPTS -->
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-  </body>
+  <!-- Section Foto -->
+  <section class="hero">
+    <div class="card">
+      <img src="{{ url_for('static', filename='images/tugu.jpg') }}" alt="Tugu Jogja">
+      <h3>Tugu Jogja</h3>
+      <p>Ikon bersejarah di pusat kota Yogyakarta.</p>
+    </div>
+    <div class="card">
+      <img src="{{ url_for('static', filename='images/malioboro.jpg') }}" alt="Malioboro">
+      <h3>Malioboro</h3>
+      <p>Jalan belanja paling terkenal di Jogja.</p>
+    </div>
+    <div class="card">
+      <img src="{{ url_for('static', filename='images/keraton.jpg') }}" alt="Keraton">
+      <h3>Keraton Yogyakarta</h3>
+      <p>Istana megah tempat tinggal Sultan.</p>
+    </div>
+  </section>
+
+  <!-- Section Form -->
+  <section class="route-section">
+    <h2>Select Your Route</h2>
+    <div>
+      <label>Origin:</label>
+      <select id="start">
+        <option value="">Select Origin</option>
+        <option value="Tugu Jogja">Tugu Jogja</option>
+        <option value="Malioboro">Malioboro</option>
+        <option value="Keraton Yogyakarta">Keraton Yogyakarta</option>
+      </select>
+      <label>Destination:</label>
+      <select id="end">
+        <option value="">Select Destination</option>
+        <option value="Tugu Jogja">Tugu Jogja</option>
+        <option value="Malioboro">Malioboro</option>
+        <option value="Keraton Yogyakarta">Keraton Yogyakarta</option>
+      </select>
+      <button onclick="findRoute()">Find Route</button>
+    </div>
+    <div id="result"></div>
+  </section>
+
+  <!-- Map -->
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    const locations = {
+      "Tugu Jogja": [-7.7829, 110.3671],
+      "Malioboro": [-7.7930, 110.3658],
+      "Keraton Yogyakarta": [-7.8056, 110.3649]
+    };
+
+    const map = L.map('map').setView([-7.79, 110.366], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    let routeLine = null;
+    let markers = [];
+
+    async function findRoute() {
+      const start = document.getElementById('start').value;
+      const end = document.getElementById('end').value;
+      const resultDiv = document.getElementById('result');
+
+      if (!start || !end) {
+        resultDiv.innerText = "Please select both origin and destination.";
+        return;
+      }
+
+      const res = await fetch('/api/route', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ start, end })
+      });
+      const data = await res.json();
+
+      resultDiv.innerHTML = `🚗 <b>Rute:</b> ${data.route.join(' → ')}<br>📏 <b>Jarak:</b> ${data.distance} km`;
+
+      if (routeLine) map.removeLayer(routeLine);
+      markers.forEach(m => map.removeLayer(m));
+      markers = [];
+
+      const startCoords = locations[start];
+      const endCoords = locations[end];
+
+      routeLine = L.polyline([startCoords, endCoords], { color: 'blue', weight: 4 }).addTo(map);
+
+      markers.push(L.marker(startCoords).addTo(map).bindPopup(`<b>${start}</b>`));
+      markers.push(L.marker(endCoords).addTo(map).bindPopup(`<b>${end}</b>`));
+
+      map.fitBounds([startCoords, endCoords]);
+    }
+  </script>
+</body>
 </html>
