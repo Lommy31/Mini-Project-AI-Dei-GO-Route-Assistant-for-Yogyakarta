@@ -1,6 +1,11 @@
 from flask import Flask, render_template, request, jsonify
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="static", template_folder=".")
+
+# 🟢 Route utama untuk halaman web
+@app.route("/")
+def home():
+    return render_template("index.html")
 
 @app.route("/api/route", methods=["POST"])
 def get_route():
@@ -8,7 +13,6 @@ def get_route():
     start = data.get("start")
     end = data.get("end")
 
-    # contoh rute sederhana (dummy)
     routes = {
         ("Malioboro", "UGM"): ["Malioboro", "Tugu Jogja", "UGM"],
         ("Tugu Jogja", "Stasiun Tugu"): ["Tugu Jogja", "Stasiun Tugu"],
