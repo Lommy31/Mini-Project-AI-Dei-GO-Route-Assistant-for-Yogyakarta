@@ -3,19 +3,95 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Your DeiGO Route Assistant🚨💨 </title>
+  <title>DeiGO Route Assistant</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <style>
+    /* --- Base layout --- */
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+      height: 100vh;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      padding: 40px;
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      color: #3f51b5;
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      text-align: left;
+      font-weight: 600;
+      color: #555;
+      margin: 10px 0 5px;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #ccc;
+      outline: none;
+      font-size: 1rem;
+    }
+
+    button {
+      margin-top: 20px;
+      width: 100%;
+      padding: 10px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      background-color: #3f51b5;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #303f9f;
+    }
+
+    #result {
+      margin-top: 20px;
+      padding: 10px;
+      background: #f9f9f9;
+      border-radius: 10px;
+      font-size: 1rem;
+      color: #333;
+      min-height: 40px;
+    }
+  </style>
 </head>
 <body>
-  <h1>DeiGO Route Assistant</h1>
+  <div class="container">
+    <h1>DeiGO Route Assistant</h1>
 
-  <label>Mulai:</label>
-  <input id="start" type="text" placeholder="Tugu Jogja">
-  <label>Tujuan:</label>
-  <input id="end" type="text" placeholder="Keraton">
-  <button onclick="findRoute()">Cari Rute</button>
+    <label>Mulai:</label>
+    <input id="start" type="text" placeholder="Tugu Jogja">
 
-  <div id="result"></div>
+    <label>Tujuan:</label>
+    <input id="end" type="text" placeholder="Keraton">
+
+    <button onclick="findRoute()">Cari Rute</button>
+
+    <div id="result"></div>
+  </div>
 
   <script>
     async function findRoute() {
@@ -37,7 +113,6 @@
 
         if (!res.ok) {
           const errText = await res.text();
-          console.error('Error:', errText);
           resultDiv.textContent = 'Terjadi kesalahan: ' + errText;
           return;
         }
@@ -46,15 +121,14 @@
 
         if (data.route && data.distance !== undefined) {
           resultDiv.innerHTML = `
-            <p>Jarak dari <b>${data.route[0]}</b> ke <b>${data.route[data.route.length - 1]}</b> adalah <b>${data.distance} km</b>.</p>
-            <p>Rute: ${data.route.join(' → ')}</p>
+            🚗 <b>Jarak:</b> ${data.distance} km<br>
+            🗺️ <b>Rute:</b> ${data.route.join(' → ')}
           `;
         } else {
           resultDiv.textContent = 'Rute tidak ditemukan.';
         }
       } catch (err) {
-        console.error(err);
-        resultDiv.textContent = 'Gagal terhubung ke server 😢';
+        resultDiv.textContent = '⚠️ Gagal terhubung ke server backend.';
       }
     }
   </script>
