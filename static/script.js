@@ -1,26 +1,101 @@
+// ===============================
+// DEI-GO Route Assistant
+// ===============================
 document.addEventListener("DOMContentLoaded", () => {
+  // =========================
+  // ELEMENT REFERENCES
+  // =========================
   const routeOutput = document.getElementById("route-output");
   const originSelect = document.getElementById("origin");
   const destinationSelect = document.getElementById("destination");
   const findRouteBtn = document.getElementById("find-route-btn");
 
-  const chatOutput = document.getElementById("chatbox"); // <== ID-nya di HTML kamu chatbox, bukan chat-output
+  const chatOutput = document.getElementById("chatbox");
   const userInput = document.getElementById("user-input");
   const sendBtn = document.getElementById("send-btn");
 
-  const locationImages = {
-    "Tugu Jogja": "assets/images/tugu.jpg",
-    Malioboro: "assets/images/malioboro.jpg",
-    Keraton: "assets/images/keraton.jpg",
-    "Stasiun Tugu": "assets/images/tugu.jpg",
-    "Alun-Alun Kidul": "assets/images/keraton.jpg",
-    UGM: "assets/images/tugu.jpg",
-    Monjali: "assets/images/tugu.jpg",
-    Bandara: "assets/images/tugu.jpg",
+  // =========================
+  // LOCATION DATA
+  // =========================
+  const locationData = {
+    "Tugu Jogja": {
+      desc: "A historical landmark in the heart of Yogyakarta.",
+      img: "assets/images/tugu.jpg",
+      coords: [-7.7829, 110.3671],
+    },
+    Malioboro: {
+      desc: "The most famous shopping street in Yogyakarta.",
+      img: "assets/images/malioboro.jpg",
+      coords: [-7.7930, 110.3658],
+    },
+    Keraton: {
+      desc: "The magnificent Sultan’s Palace.",
+      img: "assets/images/keraton.jpg",
+      coords: [-7.8056, 110.3649],
+    },
+    "Alun-Alun Kidul": {
+      desc: "A popular night attraction in Yogyakarta.",
+      img: "assets/images/keraton.jpg",
+      coords: [-7.8111, 110.3643],
+    },
+    UGM: {
+      desc: "Universitas Gadjah Mada, a top educational icon in Yogyakarta.",
+      img: "assets/images/tugu.jpg",
+      coords: [-7.7694, 110.3776],
+    },
+    Monjali: {
+      desc: "Monumen Jogja Kembali, a museum commemorating Indonesia’s independence.",
+      img: "assets/images/tugu.jpg",
+      coords: [-7.7479, 110.3664],
+    },
+    Airport: {
+      desc: "Yogyakarta International Airport (YIA).",
+      img: "assets/images/tugu.jpg",
+      coords: [-7.9054, 110.0534],
+    },
   };
 
   // =========================
-  // FIND ROUTE BUTTON
+  // GENERATE DROPDOWN OPTIONS
+  // =========================
+  for (const place in locationData) {
+    const option1 = document.createElement("option");
+    option1.value = place;
+    option1.textContent = place;
+    originSelect.appendChild(option1);
+
+    const option2 = document.createElement("option");
+    option2.value = place;
+    option2.textContent = place;
+    destinationSelect.appendChild(option2);
+  }
+
+  // =========================
+  // GENERATE DESTINATION CARDS
+  // =========================
+  const cardsContainer = document.getElementById("destination-cards");
+  for (const [name, data] of Object.entries(locationData)) {
+    const card = document.createElement("div");
+    card.classList.add("card");
+    card.innerHTML = `
+      <img src="${data.img}" alt="${name}">
+      <h3>${name}</h3>
+      <p>${data.desc}</p>
+    `;
+    cardsContainer.appendChild(card);
+  }
+
+  // =========================
+  // INITIALIZE LEAFLET MAP
+  // =========================
+  window.map = L.map("map").setView([-7.79, 110.366], 13);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap contributors',
+  }).addTo(window.map);
+
+  // =========================
+  // FIND ROUTE BUTTON ACTION
   // =========================
   findRouteBtn.addEventListener("click", async () => {
     const origin = originSelect.value;
@@ -28,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!origin || !destination) {
       routeOutput.innerHTML =
-        "<p>Please select both origin and destination.</p>";
+        "<p style='color:red;'>Please select both origin and destination.</p>";
       return;
     }
 
@@ -46,15 +121,31 @@ document.addEventListener("DOMContentLoaded", () => {
       const distance = data.distance;
 
       routeOutput.innerHTML = `
-        <p><b>Route:</b> ${route}</p>
-        <p><b>Distance:</b> ${distance} km</p>
+        <p><b>🛣️ Route:</b> ${route}</p>
+        <p><b>📏 Distance:</b> ${distance} km</p>
         <div>
-          <img src="${locationImages[origin]}" alt="${origin}">
-          <img src="${locationImages[destination]}" alt="${destination}">
+          <img src="${locationData[origin].img}" alt="${origin}">
+          <img src="${locationData[destination].img}" alt="${destination}">
         </div>
       `;
+
+      // Update map route
+      if (window.map && locationData[origin] && locationData[destination]) {
+        const start = locationData[origin].coords;
+        const end = locationData[destination].coords;
+
+        if (window.routeLine) window.map.removeLayer(window.routeLine);
+        if (window.startMarker) window.map.removeLayer(window.startMarker);
+        if (window.endMarker) window.map.removeLayer(window.endMarker);
+
+        window.routeLine = L.polyline([start, end], { color: "blue", weight: 4 }).addTo(window.map);
+        window.startMarker = L.marker(start).addTo(window.map).bindPopup(origin);
+        window.endMarker = L.marker(end).addTo(window.map).bindPopup(destination);
+        window.map.fitBounds([start, end]);
+      }
+
     } catch (error) {
-      routeOutput.innerHTML = `<p>Error: ${error.message}</p>`;
+      routeOutput.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
     }
   });
 
@@ -80,7 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!response.ok) throw new Error("Failed to fetch chatbot response.");
 
       const data = await response.json();
-      addMessage("Dei-GO", data.response || "Maaf, saya tidak mengerti.");
+      addMessage("Dei-GO", data.response || "Sorry, I didn’t understand that.");
     } catch (error) {
       addMessage("Dei-GO", `Error: ${error.message}`);
     }
@@ -94,13 +185,13 @@ document.addEventListener("DOMContentLoaded", () => {
   function addMessage(sender, message) {
     const messageDiv = document.createElement("div");
     messageDiv.classList.add(sender === "You" ? "user-message" : "bot-message");
-    messageDiv.innerHTML = `<div class="bubble">${message}</div>`;
+    messageDiv.innerHTML = `<div class="bubble"><b>${sender}:</b> ${message}</div>`;
     chatOutput.appendChild(messageDiv);
     chatOutput.scrollTop = chatOutput.scrollHeight;
   }
 
   // =========================
-  // ROUTE GRAPH VISUALIZATION
+  // SIMPLE GRAPH VISUALIZATION (OPTIONAL)
   // =========================
   const graphCanvas = document.getElementById("graphCanvas");
   const ctx = graphCanvas ? graphCanvas.getContext("2d") : null;
