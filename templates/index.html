@@ -243,5 +243,20 @@
       map.fitBounds(coords);
     }
   </script>
+  <!-- Chatbot Floating Button -->
+<div id="chatbot-button">💬</div>
+
+<!-- Chatbot Window -->
+<div id="chatbot-container" class="hidden">
+  <div id="chatbot-header">Dei-GO Chatbot 🤖</div>
+  <div id="chatbot-messages"></div>
+  <div id="chatbot-input">
+    <input type="text" id="user-input" placeholder="Ketik pesan..." />
+    <button id="send-btn">Kirim</button>
+  </div>
+</div>
+
+<!-- Tambahkan link ke JS chatbot -->
+<script src="{{ url_for('static', filename='chatbot.js') }}"></script>
 </body>
 </html>
