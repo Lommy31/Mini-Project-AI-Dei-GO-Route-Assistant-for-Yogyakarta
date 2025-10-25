@@ -3,11 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI Route Assistant</title>
+  <title>DeiGO Route Assistant</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
   <h1>DeiGO Route Assistant</h1>
+
   <label>Mulai:</label>
   <input id="start" type="text" placeholder="Tugu Jogja">
   <label>Tujuan:</label>
@@ -16,6 +17,46 @@
 
   <div id="result"></div>
 
-  <script src="{{ url_for('static', filename='script.js') }}"></script>
+  <script>
+    async function findRoute() {
+      const start = document.getElementById('start').value.trim();
+      const end = document.getElementById('end').value.trim();
+      const resultDiv = document.getElementById('result');
+
+      if (!start || !end) {
+        resultDiv.textContent = 'Isi dulu kedua lokasi ya 🚗';
+        return;
+      }
+
+      try {
+        const res = await fetch('https://miniproject-ai-deigo-assistant-production.up.railway.app/api/route', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ start, end })
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          console.error('Error:', errText);
+          resultDiv.textContent = 'Terjadi kesalahan: ' + errText;
+          return;
+        }
+
+        const data = await res.json();
+
+        if (data.route && data.distance !== undefined) {
+          resultDiv.innerHTML = `
+            <p>Jarak dari <b>${data.route[0]}</b> ke <b>${data.route[data.route.length - 1]}</b> adalah <b>${data.distance} km</b>.</p>
+            <p>Rute: ${data.route.join(' → ')}</p>
+          `;
+        } else {
+          resultDiv.textContent = 'Rute tidak ditemukan.';
+        }
+      } catch (err) {
+        console.error(err);
+        resultDiv.textContent = 'Gagal terhubung ke server 😢';
+      }
+    }
+  </script>
 </body>
 </html>
