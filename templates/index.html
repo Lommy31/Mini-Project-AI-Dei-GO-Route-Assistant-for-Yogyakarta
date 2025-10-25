@@ -1,81 +1,20 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dei-GO | Route Assistant Jogja</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dei-GO | Route Assistant</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    body {
-      font-family: 'Poppins', sans-serif;
-      background-color: #f4f6fb;
-      margin: 0;
-      padding: 0;
-    }
-    header {
-      background-color: #1a237e;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-    .hero {
-      display: flex;
-      justify-content: center;
-      gap: 30px;
-      padding: 40px 20px;
-      flex-wrap: wrap;
-    }
-    .card {
-      width: 250px;
-      background: white;
-      border-radius: 15px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-      text-align: center;
-      overflow: hidden;
-      transition: transform 0.2s;
-    }
-    .card:hover {
-      transform: translateY(-8px);
-    }
-    .card img {
-      width: 100%;
-      height: 150px;
-      object-fit: cover;
-    }
-    .card h3 {
-      color: #303f9f;
-      margin: 10px 0 5px;
-    }
-    .card p {
-      color: #555;
-      font-size: 0.9rem;
-      margin-bottom: 15px;
-    }
-    .route-section {
-      text-align: center;
-      padding: 40px 20px;
-    }
-    select, button {
-      padding: 10px 15px;
-      margin: 10px;
-      border-radius: 10px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
-    }
-    button {
-      background-color: #3f51b5;
-      color: white;
-      border: none;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    button:hover {
-      background-color: #303f9f;
-    }
-    #result {
-      margin-top: 20px;
-      font-size: 1.1rem;
-      color: #333;
+    #map {
+      height: 400px;
+      width: 80%;
+      margin: 30px auto;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
     }
   </style>
 </head>
@@ -111,27 +50,48 @@
         <option value="">Select Origin</option>
         <option value="Tugu Jogja">Tugu Jogja</option>
         <option value="Malioboro">Malioboro</option>
-        <option value="Keraton">Keraton</option>
-        <option value="UGM">UGM</option>
+        <option value="Keraton Yogyakarta">Keraton Yogyakarta</option>
       </select>
       <label>Destination:</label>
       <select id="end">
         <option value="">Select Destination</option>
         <option value="Tugu Jogja">Tugu Jogja</option>
         <option value="Malioboro">Malioboro</option>
-        <option value="Keraton">Keraton</option>
-        <option value="UGM">UGM</option>
+        <option value="Keraton Yogyakarta">Keraton Yogyakarta</option>
       </select>
       <button onclick="findRoute()">Find Route</button>
     </div>
     <div id="result"></div>
   </section>
 
+  <!-- Map Section -->
+  <div id="map"></div>
+
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
   <script>
+    // Koordinat tiap lokasi
+    const locations = {
+      "Tugu Jogja": [-7.7829, 110.3671],
+      "Malioboro": [-7.7930, 110.3658],
+      "Keraton Yogyakarta": [-7.8056, 110.3649]
+    };
+
+    // Inisialisasi peta
+    const map = L.map('map').setView([-7.79, 110.366], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    let routeLine = null;
+
     async function findRoute() {
       const start = document.getElementById('start').value;
       const end = document.getElementById('end').value;
       const resultDiv = document.getElementById('result');
+
       if (!start || !end) {
         resultDiv.innerText = "Please select both origin and destination.";
         return;
@@ -144,10 +104,31 @@
           body: JSON.stringify({ start, end })
         });
         const data = await res.json();
+
         if (data.error) {
           resultDiv.innerText = "⚠️ " + data.error;
         } else {
           resultDiv.innerHTML = `🚗 <b>Rute:</b> ${data.route.join(' → ')}<br>📏 <b>Jarak:</b> ${data.distance} km`;
+
+          // Hapus rute lama kalau ada
+          if (routeLine) {
+            map.removeLayer(routeLine);
+          }
+
+          // Gambar rute baru
+          const startCoords = locations[start];
+          const endCoords = locations[end];
+
+          if (startCoords && endCoords) {
+            routeLine = L.polyline([startCoords, endCoords], { color: 'blue', weight: 4 }).addTo(map);
+
+            // Tambahkan marker
+            L.marker(startCoords).addTo(map).bindPopup(`<b>${start}</b>`).openPopup();
+            L.marker(endCoords).addTo(map).bindPopup(`<b>${end}</b>`);
+
+            // Zoom agar rute pas di layar
+            map.fitBounds([startCoords, endCoords]);
+          }
         }
       } catch (err) {
         resultDiv.innerText = "❌ Gagal menghubungkan ke server backend.";
