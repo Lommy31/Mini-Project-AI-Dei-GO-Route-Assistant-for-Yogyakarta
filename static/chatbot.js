@@ -11,7 +11,6 @@ function showPopBubble(x, y) {
   bubble.textContent = "💬";
   bubble.style.left = `${x}px`;
   bubble.style.top = `${y}px`;
-
   document.body.appendChild(bubble);
 
   // animasi fade-out dan hapus elemen
@@ -25,10 +24,13 @@ function showPopBubble(x, y) {
   }, 600);
 }
 
-// Toggle chatbot window
+// === TOGGLE CHATBOT WINDOW ===
 chatbotButton.addEventListener("click", (e) => {
-  chatbotContainer.classList.toggle("hidden");
-  // munculkan bubble di posisi cursor
+  // toggle tampil/sembunyi chatbot
+  chatbotContainer.style.display =
+    chatbotContainer.style.display === "flex" ? "none" : "flex";
+
+  // munculkan efek bubble di posisi cursor
   showPopBubble(e.clientX, e.clientY);
 });
 
@@ -38,7 +40,7 @@ async function sendMessage() {
   if (!message) return;
 
   // tampilkan pesan user
-  chatMessages.innerHTML += `<div class="user"><b>Kamu:</b> ${message}</div>`;
+  chatMessages.innerHTML += `<div class="user-msg"><b>Kamu:</b> ${message}</div>`;
   userInput.value = "";
 
   // kirim ke backend Flask
@@ -49,8 +51,7 @@ async function sendMessage() {
   });
 
   const data = await res.json();
-  chatMessages.innerHTML += `<div class="bot"><b>Dei-GO:</b> ${data.response}</div>`;
-
+  chatMessages.innerHTML += `<div class="bot-msg"><b>Dei-GO:</b> ${data.response}</div>`;
   chatMessages.scrollTop = chatMessages.scrollHeight;
 }
 
